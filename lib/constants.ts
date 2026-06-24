@@ -95,7 +95,6 @@ export const CATEGORIAS_SEED = [
 export const FICHA_FIELD_LABELS = [
   "Razón social",
   "Nombre de fantasía",
-  "Código SAP",
   "RUT / Tax ID",
   "Giro",
   "País",
@@ -115,7 +114,7 @@ export const FICHA_FIELD_LABELS = [
   "Tipo de contribuyente",
   "Régimen tributario",
   "Representante legal",
-  "Firma y timbre",
+  "Firma",
 ];
 
 // Mapa de color para el badge de estado del proveedor → modificadores .badge

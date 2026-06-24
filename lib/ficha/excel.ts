@@ -1,21 +1,10 @@
 import "server-only";
+import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 import { normLabel, joinCategories, parseCategories } from "@/lib/format";
+import { emisorByKey } from "@/lib/companies";
+import { KNAUF_LOGO_BASE64 } from "./knauf-logo";
 import type { Supplier, SupplierInput } from "@/lib/types";
-
-// Empresa emisora por defecto (el comprador). En el mockup se elige desde el
-// módulo de empresas; aquí, al estar acotados a Proveedores, usamos un emisor
-// configurable por constante.
-const EMISOR = {
-  razon: "Supplierly · Compras",
-  rut: "",
-  giro: "",
-  direccion: "",
-  comuna: "",
-  ciudad: "",
-  telefono: "",
-  emailFacturas: "",
-};
 
 // Campos del proveedor en la ficha, agrupados según las secciones de la issue
 // (§12). `key` es el campo interno; `label` es lo que ve el proveedor en Excel.
@@ -34,7 +23,6 @@ export const FICHA_SECTIONS: FichaSection[] = [
     fields: [
       { key: "razon_social", label: "Razón social" },
       { key: "nombre_fantasia", label: "Nombre de fantasía" },
-      { key: "codigo_sap", label: "Código SAP" },
       { key: "rut_tax_id", label: "RUT / Tax ID" },
       { key: "giro", label: "Giro" },
       { key: "pais", label: "País" },
@@ -52,7 +40,6 @@ export const FICHA_SECTIONS: FichaSection[] = [
       { key: "email", label: "E-mail de contacto" },
       { key: "cc_email", label: "CC E-mail" },
       { key: "telefono", label: "Teléfono de contacto" },
-      { key: "telefono_empresa", label: "Teléfono empresa" },
       { key: "web", label: "Sitio web" },
     ],
   },
@@ -86,7 +73,9 @@ const REP_FIELDS: FichaField[] = [
 ];
 
 // Sinónimos de etiqueta → campo interno, para que el import tolere variaciones
-// (incluye los labels del mockup original).
+// (incluye los labels del mockup original). Se conservan "codigo sap" y
+// "telefono empresa" para seguir importando fichas antiguas que aún los traigan,
+// aunque la ficha nueva ya no los genere.
 const LABEL_SYNONYMS: Record<string, keyof Supplier> = {
   "razon social": "razon_social",
   "nombre de fantasia": "nombre_fantasia",
@@ -142,43 +131,143 @@ function fieldValue(supplier: Supplier | null, key: keyof Supplier): string {
   return v == null ? "" : String(v);
 }
 
-// ── Generación de la ficha .xlsx (Array-of-Arrays + estilos básicos) ──
-export function buildFichaBuffer(supplier: Supplier | null): {
-  buffer: ArrayBuffer;
-  fileName: string;
-} {
-  const aoa: (string | number)[][] = [];
-  aoa.push(["FICHA DE REGISTRO DE PROVEEDOR"]);
-  aoa.push([]);
-  aoa.push(["EMPRESA SOLICITANTE (emisor)"]);
-  aoa.push(["Empresa", EMISOR.razon]);
-  aoa.push(["RUT", EMISOR.rut]);
-  aoa.push(["Email recepción facturas", EMISOR.emailFacturas]);
-  aoa.push([]);
+// ── Paleta y estilos de la ficha (corporativo Knauf) ──
+const KNAUF_BLUE = "FF00A0E1"; // azul corporativo (texto del título)
+const CELESTE_LABEL = "FFD6EEFB"; // celeste claro para los enunciados (etiquetas)
+const CELESTE_HEADER = "FFAEDDF6"; // celeste para los encabezados de sección
+const TEXT_DARK = "FF1F2937";
+const TEXT_VALUE = "FF111827";
 
+const ALL_BORDERS: Partial<ExcelJS.Borders> = {
+  top: { style: "thin", color: { argb: "FF000000" } },
+  left: { style: "thin", color: { argb: "FF000000" } },
+  bottom: { style: "thin", color: { argb: "FF000000" } },
+  right: { style: "thin", color: { argb: "FF000000" } },
+};
+
+// ── Generación de la ficha .xlsx con ExcelJS (logo, colores, bordes, firma) ──
+// `emisorKey` selecciona la empresa solicitante (Knauf Chile / Knauf Aquapanel),
+// cuyos datos rellenan la sección EMPRESA SOLICITANTE.
+export async function buildFichaBuffer(
+  supplier: Supplier | null,
+  emisorKey?: string | null,
+): Promise<{ buffer: ArrayBuffer; fileName: string }> {
+  const emisor = emisorByKey(emisorKey);
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Supplierly";
+  const ws = wb.addWorksheet("Ficha Proveedor", {
+    views: [{ showGridLines: false }],
+  });
+  ws.columns = [{ width: 42 }, { width: 54 }];
+
+  // ── Encabezado: logo arriba-izquierda + título al centro ──
+  ws.mergeCells("A1:B3");
+  const titleCell = ws.getCell("A1");
+  titleCell.value = "FICHA DE REGISTRO DE PROVEEDOR";
+  titleCell.font = { name: "Calibri", size: 16, bold: true, color: { argb: KNAUF_BLUE } };
+  titleCell.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(1).height = 28;
+  ws.getRow(2).height = 28;
+  ws.getRow(3).height = 28;
+
+  const logoId = wb.addImage({ base64: KNAUF_LOGO_BASE64, extension: "png" });
+  // Tamaño acorde (~168×85 px, conserva el ratio 2363×1196 del original).
+  // Flotante sobre la esquina superior izquierda, sin invadir el título centrado.
+  ws.addImage(logoId, {
+    tl: { col: 0.12, row: 0.35 },
+    ext: { width: 168, height: 85 },
+    editAs: "oneCell",
+  });
+
+  // ── Helpers de construcción de filas ──
+  const sectionHeader = (title: string) => {
+    const row = ws.addRow([title]);
+    ws.mergeCells(`A${row.number}:B${row.number}`);
+    const c = row.getCell(1);
+    c.font = { bold: true, size: 11, color: { argb: TEXT_DARK } };
+    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_HEADER } };
+    c.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    c.border = ALL_BORDERS;
+    row.getCell(2).border = ALL_BORDERS;
+    row.height = 22;
+  };
+
+  const dataRow = (label: string, value: string) => {
+    const row = ws.addRow([label, value]);
+    const lab = row.getCell(1);
+    lab.font = { size: 10, color: { argb: TEXT_DARK } };
+    lab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_LABEL } };
+    lab.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
+    lab.border = ALL_BORDERS;
+    const val = row.getCell(2);
+    val.font = { size: 10, color: { argb: TEXT_VALUE } };
+    val.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
+    val.border = ALL_BORDERS;
+    // Altura automática: no se fija para permitir que Excel ajuste el alto
+    // cuando un valor largo (giro, dirección) hace wrap.
+  };
+
+  const spacer = (h = 6) => {
+    ws.addRow([]).height = h;
+  };
+
+  // ── EMPRESA SOLICITANTE (rellenada desde la empresa emisora elegida) ──
+  // Etiquetas con sufijo "de la empresa" a propósito: evitan colisionar con los
+  // sinónimos del proveedor (RUT, Giro, Dirección…) al reimportar la ficha.
+  spacer(6);
+  sectionHeader("EMPRESA SOLICITANTE");
+  dataRow("Empresa", emisor.razon);
+  dataRow("RUT de la empresa", emisor.rut);
+  dataRow("Giro de la empresa", emisor.giro);
+  dataRow("Dirección de la empresa", emisor.direccion);
+  dataRow("Comuna de la empresa", emisor.comuna);
+  dataRow("Ciudad de la empresa", emisor.ciudad);
+  dataRow("Email recepción facturas", emisor.emailFacturas);
+  spacer();
+
+  // ── Secciones que completa el proveedor ──
   for (const section of FICHA_SECTIONS) {
-    aoa.push([section.title + " (a completar por el proveedor)"]);
+    sectionHeader(section.title + " (a completar por el proveedor)");
     for (const f of section.fields) {
-      aoa.push([f.label, fieldValue(supplier, f.key)]);
+      dataRow(f.label, fieldValue(supplier, f.key));
     }
-    aoa.push([]);
+    spacer();
   }
 
-  aoa.push(["DECLARACIONES Y APROBACIONES"]);
+  // ── Declaraciones y firma del representante legal ──
+  sectionHeader("DECLARACIONES Y APROBACIONES");
   for (const f of REP_FIELDS) {
-    aoa.push([f.label, fieldValue(supplier, f.key)]);
+    dataRow(f.label, fieldValue(supplier, f.key));
   }
-  aoa.push(["Fecha", ""]);
-  aoa.push(["Cargo del representante legal", ""]);
-  aoa.push(["Firma", ""]);
-  aoa.push(["Timbre", ""]);
+  dataRow("Fecha", "");
+  dataRow("Cargo del representante legal", "");
 
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws["!cols"] = [{ wch: 46 }, { wch: 44 }];
+  // Campo de firma agrandado (sin timbre): etiqueta + caja alta para firmar.
+  const firmaStart = ws.addRow(["Firma del representante legal", ""]).number;
+  const FIRMA_ROWS = 5;
+  for (let i = 1; i < FIRMA_ROWS; i++) ws.addRow([]);
+  const firmaEnd = firmaStart + FIRMA_ROWS - 1;
+  ws.mergeCells(`A${firmaStart}:A${firmaEnd}`);
+  ws.mergeCells(`B${firmaStart}:B${firmaEnd}`);
+  const firmaLab = ws.getCell(`A${firmaStart}`);
+  firmaLab.value = "Firma del representante legal";
+  firmaLab.font = { size: 10, color: { argb: TEXT_DARK } };
+  firmaLab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_LABEL } };
+  firmaLab.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
+  ws.getCell(`B${firmaStart}`).alignment = { horizontal: "center", vertical: "bottom" };
+  for (let rr = firmaStart; rr <= firmaEnd; rr++) {
+    ws.getRow(rr).height = 26;
+    ws.getCell(`A${rr}`).border = ALL_BORDERS;
+    ws.getCell(`B${rr}`).border = ALL_BORDERS;
+  }
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Ficha Proveedor");
-  const out = XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
+  const written = await wb.xlsx.writeBuffer();
+  const nodeBuf = written as unknown as Buffer;
+  const buffer = nodeBuf.buffer.slice(
+    nodeBuf.byteOffset,
+    nodeBuf.byteOffset + nodeBuf.byteLength,
+  ) as ArrayBuffer;
 
   const base = supplier?.razon_social || supplier?.nombre_fantasia || "proveedor";
   const fileName = `Ficha_Proveedor_${base
@@ -186,7 +275,7 @@ export function buildFichaBuffer(supplier: Supplier | null): {
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "")}.xlsx`;
-  return { buffer: out, fileName };
+  return { buffer, fileName };
 }
 
 // ── Parseo de una ficha .xlsx completada → campos detectados ──

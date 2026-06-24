@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { IconX, IconFile, IconDownload } from "@/components/icons";
 import { FICHA_FIELD_LABELS } from "@/lib/constants";
+import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY } from "@/lib/companies";
 import { downloadBase64 } from "@/lib/client/files";
 import { blankSupplier } from "@/lib/supplier-form";
 import { generateFichaAction } from "@/app/proveedores/actions";
@@ -25,6 +26,7 @@ export function FichaModal({
 }) {
   const toast = useToast();
   const [pending, startTransition] = useTransition();
+  const [emisorKey, setEmisorKey] = useState(DEFAULT_EMISOR_KEY);
   const target = supplier ?? blankSupplier();
   const titular = supplier
     ? supplier.razon_social
@@ -32,7 +34,7 @@ export function FichaModal({
 
   function generate() {
     startTransition(async () => {
-      const res = await generateFichaAction(target);
+      const res = await generateFichaAction(target, emisorKey);
       if (res.ok) {
         downloadBase64(res.data.base64, res.data.fileName, res.data.mimeType);
         toast(
@@ -66,6 +68,28 @@ export function FichaModal({
       </header>
 
       <div className="modal-body">
+        <div className="field" style={{ marginBottom: 16 }}>
+          <label className="field-label" htmlFor="ficha-emisor">
+            Empresa solicitante (emisora)
+          </label>
+          <select
+            id="ficha-emisor"
+            className="select"
+            value={emisorKey}
+            onChange={(e) => setEmisorKey(e.target.value)}
+          >
+            {EMISOR_COMPANIES.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.razon} · {c.rut}
+              </option>
+            ))}
+          </select>
+          <div className="field-help" style={{ marginTop: 4 }}>
+            Sus datos (RUT, giro, dirección) rellenan la sección EMPRESA
+            SOLICITANTE de la ficha.
+          </div>
+        </div>
+
         <div className="ficha-preview">
           <div className="ficha-preview-head">
             <IconFile />
@@ -83,8 +107,8 @@ export function FichaModal({
           </div>
           <div className="ficha-sign-note">
             <IconFile />
-            Incluye un espacio para la <strong>firma y timbre del
-            representante legal</strong>.
+            Incluye un espacio para la <strong>firma del representante
+            legal</strong>.
           </div>
         </div>
       </div>

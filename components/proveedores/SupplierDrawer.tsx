@@ -25,6 +25,7 @@ import {
   REGIMEN_TRIBUTARIO,
   DOC_ESTADOS,
 } from "@/lib/constants";
+import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY } from "@/lib/companies";
 import { initials, joinCategories, fmtBytes, fmtDate } from "@/lib/format";
 import { toInput, blankSupplier } from "@/lib/supplier-form";
 import { fileToBase64, downloadBase64, isPdf } from "@/lib/client/files";
@@ -83,6 +84,7 @@ export function SupplierDrawer({
   const [docEstado, setDocEstado] = useState(supplier?.doc_estado ?? "Pendiente");
   const [docs, setDocs] = useState<SessionDoc[]>([]);
   const [audit, setAudit] = useState<SupplierAuditLog[]>([]);
+  const [emisorKey, setEmisorKey] = useState(DEFAULT_EMISOR_KEY);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -137,7 +139,7 @@ export function SupplierDrawer({
 
   function genFicha() {
     startTransition(async () => {
-      const res = await generateFichaAction({ ...supplier!, ...draft });
+      const res = await generateFichaAction({ ...supplier!, ...draft }, emisorKey);
       if (res.ok) {
         downloadBase64(res.data.base64, res.data.fileName, res.data.mimeType);
         setDocEstado("Ficha generada");
@@ -284,7 +286,6 @@ export function SupplierDrawer({
                   <TagInput value={draft.categorias} onChange={(v) => set("categorias", v)} suggestions={categories} />
                 </div>
                 <DField label="Web" value={draft.web} onChange={(v) => set("web", v)} ph="https://…" />
-                <DField label="Teléfono (empresa)" value={draft.telefono_empresa} onChange={(v) => set("telefono_empresa", v)} />
               </Section>
             </>
           )}
@@ -327,7 +328,7 @@ export function SupplierDrawer({
               <DField label="E-mail del representante legal" value={draft.rep_email} onChange={(v) => set("rep_email", v)} />
               <div className="field col-2">
                 <div className="field-help" style={{ marginTop: 4 }}>
-                  La ficha generada incluye un espacio para la firma y timbre del
+                  La ficha generada incluye un espacio ampliado para la firma del
                   representante legal.
                 </div>
               </div>
@@ -348,6 +349,24 @@ export function SupplierDrawer({
                   {DOC_ESTADOS.map((d) => (
                     <option key={d} value={d}>
                       {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field" style={{ marginTop: 12 }}>
+                <label className="field-label" htmlFor="drawer-emisor">
+                  Empresa solicitante (emisora)
+                </label>
+                <select
+                  id="drawer-emisor"
+                  className="select"
+                  value={emisorKey}
+                  onChange={(e) => setEmisorKey(e.target.value)}
+                >
+                  {EMISOR_COMPANIES.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.razon} · {c.rut}
                     </option>
                   ))}
                 </select>

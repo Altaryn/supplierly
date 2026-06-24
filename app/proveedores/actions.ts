@@ -145,9 +145,10 @@ export async function getSupplierDetailAction(id: string): Promise<
 // ─────────────────────── Ficha .xlsx: generar ───────────────────────
 export async function generateFichaAction(
   supplier: Supplier,
+  emisorKey?: string | null,
 ): Promise<ActionResult<{ base64: string; fileName: string; mimeType: string }>> {
   try {
-    const { buffer, fileName } = buildFichaBuffer(supplier);
+    const { buffer, fileName } = await buildFichaBuffer(supplier, emisorKey);
     const mimeType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
