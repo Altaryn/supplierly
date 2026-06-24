@@ -18,6 +18,7 @@ export const supplierInputSchema = z.object({
     .array(z.string().trim().min(1))
     .min(1, "Agrega al menos una categoría"),
   subcategorias: z.array(z.string().trim().min(1)).optional().default([]),
+  empresa: optionalStr,
   // Ubicación
   pais: z.string().trim().min(1, "El país es obligatorio"),
   ciudad: optionalStr,

@@ -29,6 +29,7 @@ export interface Supplier {
   giro: string;
   categorias: string[];
   subcategorias: string[]; // tipo de material por categoría seleccionada
+  empresa: string; // empresa solicitante (emisora) a la que corresponde el proveedor
   // Ubicación
   pais: string;
   ciudad: string;

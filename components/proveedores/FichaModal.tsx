@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { IconX, IconFile, IconDownload } from "@/components/icons";
 import { FICHA_FIELD_LABELS } from "@/lib/constants";
-import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY } from "@/lib/companies";
+import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY, emisorByRazon } from "@/lib/companies";
 import { downloadBase64 } from "@/lib/client/files";
 import { blankSupplier } from "@/lib/supplier-form";
 import { generateFichaAction } from "@/app/proveedores/actions";
@@ -27,6 +27,10 @@ export function FichaModal({
   const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [emisorKey, setEmisorKey] = useState(DEFAULT_EMISOR_KEY);
+  // Preselecciona la empresa emisora según la del proveedor (si la tiene).
+  useEffect(() => {
+    if (open) setEmisorKey(emisorByRazon(supplier?.empresa)?.key ?? DEFAULT_EMISOR_KEY);
+  }, [open, supplier]);
   const target = supplier ?? blankSupplier();
   const titular = supplier
     ? supplier.razon_social

@@ -138,6 +138,14 @@ function Inner({
     }
   }
 
+  function copySap(sap: string) {
+    if (!sap) return;
+    navigator.clipboard?.writeText(sap).then(
+      () => toast("success", "Código SAP copiado", sap),
+      () => toast("error", "No se pudo copiar", "El navegador bloqueó el portapapeles."),
+    );
+  }
+
   function refresh() {
     refreshSuppliersAction().then((res) => {
       if (res.ok) {
@@ -272,6 +280,7 @@ function Inner({
           <thead>
             <tr>
               <th>Razón Social</th>
+              <th>Empresa</th>
               <th>RUT / Tax ID</th>
               <th>Código SAP</th>
               <th>Categoría</th>
@@ -291,6 +300,13 @@ function Inner({
                   </div>
                 </td>
                 <td>
+                  {s.empresa ? (
+                    <span className="badge category">{s.empresa}</span>
+                  ) : (
+                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
+                  )}
+                </td>
+                <td>
                   {s.rut_tax_id ? (
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)" }}>
                       {s.rut_tax_id}
@@ -301,9 +317,26 @@ function Inner({
                 </td>
                 <td>
                   {s.codigo_sap ? (
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)" }}>
+                    <button
+                      type="button"
+                      className="sap-copy"
+                      title="Copiar Código SAP"
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-sm)",
+                        cursor: "pointer",
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        color: "inherit",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copySap(s.codigo_sap);
+                      }}
+                    >
                       {s.codigo_sap}
-                    </span>
+                    </button>
                   ) : (
                     <span style={{ color: "var(--text-tertiary)" }}>—</span>
                   )}
@@ -376,6 +409,7 @@ function Inner({
               <StatusBadge estado={s.estado} />
             </div>
             <div className="rfq-card-meta">
+              {s.empresa ? <span className="badge category">{s.empresa}</span> : null}
               {s.categorias.map((c) => (
                 <span className="badge category" key={c}>
                   {c}

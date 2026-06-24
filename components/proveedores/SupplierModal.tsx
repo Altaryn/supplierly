@@ -5,6 +5,7 @@ import { Modal } from "@/components/ui/Modal";
 import { TagInput } from "./TagInput";
 import { IconX, IconCheck, IconInfo } from "@/components/icons";
 import { ESTADOS, GENEROS, PAISES, subcategoriaSuggestions } from "@/lib/constants";
+import { EMISOR_COMPANIES } from "@/lib/companies";
 import { emptyInput, toInput } from "@/lib/supplier-form";
 import {
   createSupplierAction,
@@ -149,6 +150,16 @@ export function SupplierModal({
               <option key={p} value={p} />
             ))}
           </datalist>
+
+          <div className="form-row">
+            <SelectField
+              label="Empresa solicitante"
+              value={input.empresa}
+              onChange={(v) => set("empresa", v)}
+              options={EMISOR_COMPANIES.map((c) => c.razon)}
+              placeholder="Selecciona la empresa…"
+            />
+          </div>
         </section>
 
         {/* ── Clasificación y contacto ── */}

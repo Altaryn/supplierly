@@ -43,3 +43,13 @@ export const DEFAULT_EMISOR_KEY = EMISOR_COMPANIES[0].key;
 export function emisorByKey(key: string | null | undefined): EmisorCompany {
   return EMISOR_COMPANIES.find((c) => c.key === key) ?? EMISOR_COMPANIES[0];
 }
+
+// Resuelve la empresa emisora por su razón social (lo que guarda Supplier.empresa
+// y lo que viaja en la ficha). Devuelve undefined si no coincide ninguna.
+export function emisorByRazon(
+  razon: string | null | undefined,
+): EmisorCompany | undefined {
+  if (!razon) return undefined;
+  const norm = (s: string) => s.trim().toLowerCase();
+  return EMISOR_COMPANIES.find((c) => norm(c.razon) === norm(razon));
+}

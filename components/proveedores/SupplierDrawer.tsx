@@ -25,7 +25,7 @@ import {
   DOC_ESTADOS,
   subcategoriaSuggestions,
 } from "@/lib/constants";
-import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY } from "@/lib/companies";
+import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY, emisorByRazon } from "@/lib/companies";
 import { initials, joinCategories, fmtBytes, fmtDate } from "@/lib/format";
 import { toInput, blankSupplier } from "@/lib/supplier-form";
 import { fileToBase64, downloadBase64, isPdf } from "@/lib/client/files";
@@ -91,6 +91,7 @@ export function SupplierDrawer({
     if (open && supplier) {
       setDraft(toInput(supplier));
       setDocEstado(supplier.doc_estado);
+      setEmisorKey(emisorByRazon(supplier.empresa)?.key ?? DEFAULT_EMISOR_KEY);
       setTab("general");
       setDocs([]);
       setAudit([]);
@@ -272,6 +273,7 @@ export function SupplierDrawer({
                 <DField label="RUT / Tax ID" value={draft.rut_tax_id} onChange={(v) => set("rut_tax_id", v)} ph="76.123.456-7" />
                 <DField label="Giro" col2 value={draft.giro} onChange={(v) => set("giro", v)} />
                 <DSelect label="Estado" value={draft.estado} onChange={(v) => set("estado", v as Supplier["estado"])} options={ESTADOS} />
+                <DSelect label="Empresa solicitante" col2 value={draft.empresa} onChange={(v) => set("empresa", v)} options={EMISOR_COMPANIES.map((c) => c.razon)} />
               </Section>
               <Section title="Ubicación">
                 <DField label="Dirección" col2 value={draft.direccion} onChange={(v) => set("direccion", v)} />

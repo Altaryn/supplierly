@@ -23,6 +23,7 @@ create table if not exists public.suppliers (
   giro                text not null default '',
   categorias          text[] not null default '{}',
   subcategorias       text[] not null default '{}',  -- tipo de material por categoría
+  empresa             text not null default '',      -- empresa solicitante (emisora)
   -- Ubicación
   pais                text not null default '',
   ciudad              text not null default '',

@@ -21,6 +21,7 @@ function build(seed: Seed, i: number): Supplier {
     giro: seed.giro ?? "",
     categorias: seed.categorias ?? [],
     subcategorias: seed.subcategorias ?? [],
+    empresa: seed.empresa ?? "",
     pais: seed.pais ?? "Chile",
     ciudad: seed.ciudad ?? "",
     comuna: seed.comuna ?? "",
@@ -56,6 +57,7 @@ function build(seed: Seed, i: number): Supplier {
 const SEEDS: Seed[] = [
   {
     razon_social: "FerroPro Distribución SpA",
+    empresa: "Knauf Chile SpA",
     nombre_fantasia: "FerroPro",
     codigo_sap: "SAP-1001",
     rut_tax_id: "76.111.222-3",
@@ -89,6 +91,7 @@ const SEEDS: Seed[] = [
   },
   {
     razon_social: "Aceros del Pacífico S.A.",
+    empresa: "Knauf Aquapanel SpA",
     nombre_fantasia: "Aceros del Pacífico",
     codigo_sap: "10002345",
     rut_tax_id: "90.222.333-4",
@@ -122,6 +125,7 @@ const SEEDS: Seed[] = [
   },
   {
     razon_social: "Acertech Soluciones Ltda.",
+    empresa: "Knauf Chile SpA",
     nombre_fantasia: "Acertech",
     codigo_sap: "PROV-001",
     rut_tax_id: "77.555.888-1",
@@ -153,6 +157,7 @@ const SEEDS: Seed[] = [
   },
   {
     razon_social: "Comercializadora Eléctrica Sur Ltda.",
+    empresa: "Knauf Aquapanel SpA",
     nombre_fantasia: "Eléctrica Sur",
     codigo_sap: "SAP-2042",
     rut_tax_id: "77.444.555-6",
@@ -183,6 +188,7 @@ const SEEDS: Seed[] = [
   },
   {
     razon_social: "Voltium Energía SpA",
+    empresa: "Knauf Chile SpA",
     nombre_fantasia: "Voltium Energía",
     rut_tax_id: "76.808.909-0",
     giro: "Comercialización de equipos eléctricos",
@@ -201,6 +207,7 @@ const SEEDS: Seed[] = [
   },
   {
     razon_social: "SafetyPlus Chile SpA",
+    empresa: "Knauf Aquapanel SpA",
     nombre_fantasia: "SafetyPlus",
     codigo_sap: "SAP-3300",
     rut_tax_id: "76.330.110-K",

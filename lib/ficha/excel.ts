@@ -3,7 +3,7 @@ import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 import { normLabel, joinCategories, parseCategories } from "@/lib/format";
 import { emisorByKey } from "@/lib/companies";
-import { CONDICION_PAGO, PLAZO_PAGO, FORMA_PAGO, TIPO_DOC } from "@/lib/constants";
+import { CONDICION_PAGO, PLAZO_PAGO, FORMA_PAGO, TIPO_DOC, TIPO_CUENTA } from "@/lib/constants";
 import { REGIONES_CHILE, COMUNAS_CHILE, CIUDADES_CHILE } from "@/lib/data/chile";
 import { KNAUF_LOGO_BASE64 } from "./knauf-logo";
 import type { Supplier, SupplierInput } from "@/lib/types";
@@ -30,6 +30,7 @@ type ListName =
   | "condicion_pago"
   | "plazo_pago"
   | "forma_pago"
+  | "tipo_cuenta"
   | "tipo_doc";
 
 // Origen de cada lista. Las geográficas se ordenan alfabéticamente.
@@ -40,6 +41,7 @@ const LIST_SOURCES: Record<ListName, string[]> = {
   condicion_pago: CONDICION_PAGO,
   plazo_pago: PLAZO_PAGO,
   forma_pago: FORMA_PAGO,
+  tipo_cuenta: TIPO_CUENTA,
   tipo_doc: TIPO_DOC,
 };
 
@@ -49,6 +51,7 @@ const STRICT_LISTS = new Set<ListName>([
   "condicion_pago",
   "plazo_pago",
   "forma_pago",
+  "tipo_cuenta",
   "tipo_doc",
 ]);
 
@@ -85,7 +88,7 @@ export const FICHA_SECTIONS: FichaSection[] = [
       { key: "forma_pago", label: "Forma de pago", list: "forma_pago" },
       { key: "moneda", label: "Moneda" },
       { key: "banco", label: "Nombre del banco" },
-      { key: "tipo_cuenta", label: "Tipo de cuenta para pago" },
+      { key: "tipo_cuenta", label: "Tipo de cuenta para pago", list: "tipo_cuenta" },
       { key: "cuenta_bancaria", label: "Número de cuenta bancaria (solo números)" },
     ],
   },
@@ -111,6 +114,8 @@ const REP_FIELDS: FichaField[] = [
 const LABEL_SYNONYMS: Record<string, keyof Supplier> = {
   "razon social": "razon_social",
   "nombre de fantasia": "nombre_fantasia",
+  // "Empresa" de la sección EMPRESA SOLICITANTE → empresa emisora del proveedor.
+  empresa: "empresa",
   "codigo sap": "codigo_sap",
   rut: "rut_tax_id",
   "rut tax id": "rut_tax_id",
@@ -164,10 +169,19 @@ function fieldValue(supplier: Supplier | null, key?: keyof Supplier): string {
   return v == null ? "" : String(v);
 }
 
-// ── Paleta y estilos de la ficha (corporativo Knauf) ──
-const KNAUF_BLUE = "FF00A0E1"; // azul corporativo (texto del título)
-const CELESTE_LABEL = "FFD6EEFB"; // celeste claro para los enunciados (etiquetas)
-const CELESTE_HEADER = "FFAEDDF6"; // celeste para los encabezados de sección
+// ── Paleta y estilos de la ficha ──
+// El tema cambia según la empresa emisora para diferenciarlas de un vistazo:
+// Knauf Chile en celeste (azul corporativo) y Knauf Aquapanel en verde claro.
+interface FichaTheme {
+  title: string; // color del texto del título
+  header: string; // relleno de los encabezados de sección
+  label: string; // relleno de los enunciados (etiquetas)
+}
+const THEMES: Record<string, FichaTheme> = {
+  knauf_chile: { title: "FF00A0E1", header: "FFAEDDF6", label: "FFD6EEFB" },
+  knauf_aquapanel: { title: "FF4E9A2E", header: "FFCDE9B5", label: "FFE6F4DA" },
+};
+const DEFAULT_THEME = THEMES.knauf_chile;
 const TEXT_DARK = "FF1F2937";
 const TEXT_VALUE = "FF111827";
 
@@ -186,6 +200,7 @@ export async function buildFichaBuffer(
   emisorKey?: string | null,
 ): Promise<{ buffer: ArrayBuffer; fileName: string }> {
   const emisor = emisorByKey(emisorKey);
+  const theme = THEMES[emisor.key] ?? DEFAULT_THEME;
 
   const wb = new ExcelJS.Workbook();
   wb.creator = "Supplierly";
@@ -213,7 +228,7 @@ export async function buildFichaBuffer(
   ws.mergeCells("A1:B3");
   const titleCell = ws.getCell("A1");
   titleCell.value = "FICHA DE REGISTRO DE PROVEEDOR";
-  titleCell.font = { name: "Calibri", size: 16, bold: true, color: { argb: KNAUF_BLUE } };
+  titleCell.font = { name: "Calibri", size: 16, bold: true, color: { argb: theme.title } };
   titleCell.alignment = { horizontal: "center", vertical: "middle" };
   ws.getRow(1).height = 28;
   ws.getRow(2).height = 28;
@@ -234,7 +249,7 @@ export async function buildFichaBuffer(
     ws.mergeCells(`A${row.number}:B${row.number}`);
     const c = row.getCell(1);
     c.font = { bold: true, size: 11, color: { argb: TEXT_DARK } };
-    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_HEADER } };
+    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: theme.header } };
     c.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
     c.border = ALL_BORDERS;
     row.getCell(2).border = ALL_BORDERS;
@@ -245,7 +260,7 @@ export async function buildFichaBuffer(
     const row = ws.addRow([label, value]);
     const lab = row.getCell(1);
     lab.font = { size: 10, color: { argb: TEXT_DARK } };
-    lab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_LABEL } };
+    lab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: theme.label } };
     lab.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
     lab.border = ALL_BORDERS;
     const val = row.getCell(2);
@@ -314,7 +329,7 @@ export async function buildFichaBuffer(
   const firmaLab = ws.getCell(`A${firmaStart}`);
   firmaLab.value = "Firma del representante legal";
   firmaLab.font = { size: 10, color: { argb: TEXT_DARK } };
-  firmaLab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: CELESTE_LABEL } };
+  firmaLab.fill = { type: "pattern", pattern: "solid", fgColor: { argb: theme.label } };
   firmaLab.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
   ws.getCell(`B${firmaStart}`).alignment = { horizontal: "center", vertical: "bottom" };
   for (let rr = firmaStart; rr <= firmaEnd; rr++) {
