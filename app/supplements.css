@@ -1,0 +1,81 @@
+/* ============================================================================
+   Supplierly — complementos puntuales sobre el sistema de diseño del mockup.
+   Solo clases nuevas introducidas por el módulo funcional (estado de error de
+   inputs, acciones de duplicado, historial y subtítulo de tarjeta). Mantiene
+   el mismo lenguaje visual (tokens) para no romper la fidelidad.
+   ============================================================================ */
+
+/* Input en estado de error (validación). */
+.input.input-error {
+  border-color: rgba(255, 107, 107, 0.55);
+  background: var(--status-urgent-soft);
+}
+
+/* Acciones del banner de duplicado en la importación. */
+.dupe-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+/* Select de estado documental en el drawer. */
+.prov-doc-estado .select {
+  max-width: 280px;
+}
+
+/* Historial de acciones (trazabilidad) en el drawer. */
+.prov-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.prov-history-row {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-3);
+  background: var(--bg-glass);
+}
+.prov-history-row svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.prov-history-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+.prov-history-date {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* Subtítulo de la tarjeta de proveedor (móvil). */
+.prov-card-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Filtro de estado en la barra (mismo aspecto que el de categoría). */
+.prov-estado-filter {
+  min-width: 150px;
+}
+
+/* Botón-archivo (Adjuntar PDF) alineado como botón secundario. */
+.btn label,
+label.btn {
+  align-items: center;
+}

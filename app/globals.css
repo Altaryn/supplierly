@@ -1,0 +1,12 @@
+/* ============================================================================
+   Supplierly — hoja de estilos global.
+
+   Tailwind v4 se importa primero para que su capa "preflight" quede por debajo
+   del sistema de diseño portado del mockup (mockup.css), que define el lenguaje
+   visual completo (tokens, shell, tablas, modales, drawers, temas claro/oscuro).
+   Así conservamos 100% de fidelidad visual y, a la vez, Tailwind queda disponible
+   para utilidades puntuales.
+   ============================================================================ */
+@import "tailwindcss";
+@import "./mockup.css";
+@import "./supplements.css";
