@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { TagInput } from "./TagInput";
 import { IconX, IconCheck, IconInfo } from "@/components/icons";
-import { ESTADOS, GENEROS, PAISES } from "@/lib/constants";
+import { ESTADOS, GENEROS, PAISES, subcategoriaSuggestions } from "@/lib/constants";
 import { emptyInput, toInput } from "@/lib/supplier-form";
 import {
   createSupplierAction,
@@ -170,6 +170,25 @@ export function SupplierModal({
               />
               <span className="field-help">
                 Una o varias. Enter o coma para agregar.
+              </span>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="field">
+              <label className="field-label">
+                Subcategoría <span className="field-opt">(tipo de material)</span>
+              </label>
+              <TagInput
+                value={input.subcategorias}
+                onChange={(v) => set("subcategorias", v)}
+                suggestions={subcategoriaSuggestions(input.categorias)}
+                placeholder="Agregar subcategoría…"
+              />
+              <span className="field-help">
+                {input.categorias.length
+                  ? "Sugerencias según la categoría seleccionada."
+                  : "Elige una categoría para ver sus subcategorías sugeridas."}
               </span>
             </div>
           </div>

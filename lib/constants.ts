@@ -22,20 +22,23 @@ export const DOC_ESTADOS: DocEstado[] = [
 
 export const GENEROS = ["Femenino", "Masculino", "Otro"];
 
-export const FORMA_PAGO = [
-  "Transferencia electrónica",
-  "Cheque",
-  "Efectivo",
-  "Tarjeta",
-  "Pago a la vista",
-];
+export const FORMA_PAGO = ["Transferencia Bancaria", "Vale Vista BCI"];
 
 export const TIPO_DOC = [
-  "Factura electrónica",
-  "Boleta",
-  "Factura exenta",
-  "Nota de honorarios",
+  "Factura",
+  "Factura No Afecta o Exenta",
+  "Boleta de Honorarios",
 ];
+
+export const CONDICION_PAGO = [
+  "Contado",
+  "Plazo",
+  "Anticipado",
+  "Primer Pago al Contado y Segundo Pago a Plazo",
+  "Anticipo y restante contra entrega",
+];
+
+export const PLAZO_PAGO = ["0 días", "15 días", "30 días", "60 días"];
 
 export const TIPO_CUENTA = [
   "Cuenta corriente",
@@ -79,6 +82,7 @@ export const PAISES = [
 // Categorías sugeridas (autocompletado). La fuente real son las categorías
 // presentes en los proveedores; esto solo siembra el datalist inicial.
 export const CATEGORIAS_SEED = [
+  "Perfiles",
   "Ferretería",
   "Electricidad",
   "EPP",
@@ -89,6 +93,41 @@ export const CATEGORIAS_SEED = [
   "Logística",
 ];
 
+// Taxonomía Categoría → Subcategorías (el "tipo de material" de cada categoría).
+// Al elegir una categoría en el formulario se sugieren sus subcategorías. Es
+// extensible: las subcategorías son de texto libre, así que el usuario puede
+// agregar otras aunque la categoría no esté mapeada aquí.
+// TODO(taxonomía): completar con el catálogo real de materiales por categoría.
+export const CATEGORIA_SUBCATEGORIAS: Record<string, string[]> = {
+  Perfiles: [
+    "Perimetral",
+    "Travesaño",
+    "Montante",
+    "Canal",
+    "Omega",
+    "Esquinero",
+  ],
+};
+
+// Sugerencias de subcategoría para las categorías seleccionadas. Si ninguna de
+// las categorías está mapeada, ofrece todas las subcategorías conocidas.
+export function subcategoriaSuggestions(categorias: string[]): string[] {
+  const norm = (s: string) => s.trim().toLowerCase();
+  const out = new Set<string>();
+  for (const c of categorias) {
+    const key = Object.keys(CATEGORIA_SUBCATEGORIAS).find(
+      (k) => norm(k) === norm(c),
+    );
+    if (key) CATEGORIA_SUBCATEGORIAS[key].forEach((s) => out.add(s));
+  }
+  if (out.size === 0) {
+    Object.values(CATEGORIA_SUBCATEGORIAS)
+      .flat()
+      .forEach((s) => out.add(s));
+  }
+  return Array.from(out);
+}
+
 // Etiquetas de los campos que el proveedor completa en la ficha .xlsx (chips de
 // previsualización en el modal de ficha). Espejo client-safe de FICHA_SECTIONS
 // en lib/ficha/excel.ts (que es server-only por importar SheetJS).
@@ -98,21 +137,23 @@ export const FICHA_FIELD_LABELS = [
   "RUT / Tax ID",
   "Giro",
   "País",
+  "Región",
   "Ciudad",
+  "Comuna",
   "Dirección",
+  "Código postal",
   "Nombre de contacto",
   "Cargo",
   "E-mail",
   "Teléfono",
-  "Categoría",
-  "Condiciones de pago",
+  "Condición de pago",
+  "Plazo de pago",
   "Forma de pago",
   "Moneda",
   "Banco",
   "Tipo de cuenta",
   "N° de cuenta",
-  "Tipo de contribuyente",
-  "Régimen tributario",
+  "Tipo de documento tributario",
   "Representante legal",
   "Firma",
 ];

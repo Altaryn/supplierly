@@ -272,7 +272,7 @@ function Inner({
           <thead>
             <tr>
               <th>Razón Social</th>
-              <th>Nombre de Fantasía</th>
+              <th>RUT / Tax ID</th>
               <th>Código SAP</th>
               <th>Categoría</th>
               <th>País</th>
@@ -285,12 +285,20 @@ function Inner({
             {filtered.map((s) => (
               <tr key={s.id} onClick={() => openDrawer(s)} style={{ cursor: "pointer" }}>
                 <td>
-                  <div className="company-row" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span className="company-icon">{initials(s.razon_social)}</span>
                     <span style={{ fontWeight: 500 }}>{s.razon_social}</span>
                   </div>
                 </td>
-                <td>{s.nombre_fantasia || "—"}</td>
+                <td>
+                  {s.rut_tax_id ? (
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)" }}>
+                      {s.rut_tax_id}
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
+                  )}
+                </td>
                 <td>
                   {s.codigo_sap ? (
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)" }}>

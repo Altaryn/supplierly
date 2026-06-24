@@ -3,19 +3,54 @@ import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 import { normLabel, joinCategories, parseCategories } from "@/lib/format";
 import { emisorByKey } from "@/lib/companies";
+import { CONDICION_PAGO, PLAZO_PAGO, FORMA_PAGO, TIPO_DOC } from "@/lib/constants";
+import { REGIONES_CHILE, COMUNAS_CHILE, CIUDADES_CHILE } from "@/lib/data/chile";
 import { KNAUF_LOGO_BASE64 } from "./knauf-logo";
 import type { Supplier, SupplierInput } from "@/lib/types";
 
 // Campos del proveedor en la ficha, agrupados según las secciones de la issue
-// (§12). `key` es el campo interno; `label` es lo que ve el proveedor en Excel.
+// (§12). `key` es el campo interno (omitido en campos solo-plantilla como Región
+// o Plazo de pago); `label` es lo que ve el proveedor; `list` referencia una de
+// las listas desplegables (validación de datos) definidas en la hoja "Listas".
 interface FichaField {
-  key: keyof Supplier;
+  key?: keyof Supplier;
   label: string;
+  list?: ListName;
 }
 interface FichaSection {
   title: string;
   fields: FichaField[];
 }
+
+// Listas desplegables disponibles en la ficha.
+type ListName =
+  | "region"
+  | "ciudad"
+  | "comuna"
+  | "condicion_pago"
+  | "plazo_pago"
+  | "forma_pago"
+  | "tipo_doc";
+
+// Origen de cada lista. Las geográficas se ordenan alfabéticamente.
+const LIST_SOURCES: Record<ListName, string[]> = {
+  region: REGIONES_CHILE,
+  ciudad: [...CIUDADES_CHILE].sort((a, b) => a.localeCompare(b, "es")),
+  comuna: [...COMUNAS_CHILE].sort((a, b) => a.localeCompare(b, "es")),
+  condicion_pago: CONDICION_PAGO,
+  plazo_pago: PLAZO_PAGO,
+  forma_pago: FORMA_PAGO,
+  tipo_doc: TIPO_DOC,
+};
+
+// Listas con opciones cerradas (rechazan otros valores). Las geográficas quedan
+// "blandas" (sugieren pero permiten escribir otra, por si falta una localidad).
+const STRICT_LISTS = new Set<ListName>([
+  "condicion_pago",
+  "plazo_pago",
+  "forma_pago",
+  "tipo_doc",
+]);
 
 export const FICHA_SECTIONS: FichaSection[] = [
   {
@@ -26,8 +61,9 @@ export const FICHA_SECTIONS: FichaSection[] = [
       { key: "rut_tax_id", label: "RUT / Tax ID" },
       { key: "giro", label: "Giro" },
       { key: "pais", label: "País" },
-      { key: "ciudad", label: "Ciudad" },
-      { key: "comuna", label: "Comuna" },
+      { label: "Región", list: "region" },
+      { key: "ciudad", label: "Ciudad", list: "ciudad" },
+      { key: "comuna", label: "Comuna", list: "comuna" },
       { key: "direccion", label: "Dirección" },
       { key: "codigo_postal", label: "Código postal" },
     ],
@@ -38,17 +74,15 @@ export const FICHA_SECTIONS: FichaSection[] = [
       { key: "contacto", label: "Nombre de la persona de contacto" },
       { key: "cargo_contacto", label: "Cargo" },
       { key: "email", label: "E-mail de contacto" },
-      { key: "cc_email", label: "CC E-mail" },
       { key: "telefono", label: "Teléfono de contacto" },
-      { key: "web", label: "Sitio web" },
     ],
   },
   {
     title: "INFORMACIÓN COMERCIAL",
     fields: [
-      { key: "categorias", label: "Categoría de productos/servicios" },
-      { key: "condiciones_pago", label: "Condiciones de pago" },
-      { key: "forma_pago", label: "Forma de pago" },
+      { key: "condiciones_pago", label: "Condición de pago", list: "condicion_pago" },
+      { label: "Plazo de pago", list: "plazo_pago" },
+      { key: "forma_pago", label: "Forma de pago", list: "forma_pago" },
       { key: "moneda", label: "Moneda" },
       { key: "banco", label: "Nombre del banco" },
       { key: "tipo_cuenta", label: "Tipo de cuenta para pago" },
@@ -58,9 +92,7 @@ export const FICHA_SECTIONS: FichaSection[] = [
   {
     title: "INFORMACIÓN TRIBUTARIA",
     fields: [
-      { key: "tipo_contribuyente", label: "Tipo de contribuyente" },
-      { key: "regimen_tributario", label: "Régimen tributario" },
-      { key: "tipo_doc", label: "Tipo de documento tributario" },
+      { key: "tipo_doc", label: "Tipo de documento tributario", list: "tipo_doc" },
     ],
   },
 ];
@@ -106,6 +138,7 @@ const LABEL_SYNONYMS: Record<string, keyof Supplier> = {
   categoria: "categorias",
   categorias: "categorias",
   "condiciones de pago": "condiciones_pago",
+  "condicion de pago": "condiciones_pago",
   "forma de pago": "forma_pago",
   moneda: "moneda",
   "nombre del banco": "banco",
@@ -124,8 +157,8 @@ const LABEL_SYNONYMS: Record<string, keyof Supplier> = {
   "e mail del representante legal de la empresa": "rep_email",
 };
 
-function fieldValue(supplier: Supplier | null, key: keyof Supplier): string {
-  if (!supplier) return "";
+function fieldValue(supplier: Supplier | null, key?: keyof Supplier): string {
+  if (!supplier || !key) return "";
   if (key === "categorias") return joinCategories(supplier.categorias);
   const v = supplier[key];
   return v == null ? "" : String(v);
@@ -161,6 +194,21 @@ export async function buildFichaBuffer(
   });
   ws.columns = [{ width: 42 }, { width: 54 }];
 
+  // ── Hoja oculta "Listas": fuente de las validaciones de datos (desplegables).
+  // Cada lista va en su propia columna; se referencia por rango. Para listas
+  // largas (comunas/ciudades) no se puede usar la fórmula inline de 255 chars.
+  const listsWs = wb.addWorksheet("Listas", { state: "hidden" });
+  const COL_LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
+  const listRanges = {} as Record<ListName, string>;
+  (Object.keys(LIST_SOURCES) as ListName[]).forEach((name, idx) => {
+    const arr = LIST_SOURCES[name];
+    const letter = COL_LETTERS[idx];
+    arr.forEach((v, i) => {
+      listsWs.getCell(`${letter}${i + 1}`).value = v;
+    });
+    listRanges[name] = `Listas!$${letter}$1:$${letter}$${arr.length}`;
+  });
+
   // ── Encabezado: logo arriba-izquierda + título al centro ──
   ws.mergeCells("A1:B3");
   const titleCell = ws.getCell("A1");
@@ -193,7 +241,7 @@ export async function buildFichaBuffer(
     row.height = 22;
   };
 
-  const dataRow = (label: string, value: string) => {
+  const dataRow = (label: string, value: string, list?: ListName) => {
     const row = ws.addRow([label, value]);
     const lab = row.getCell(1);
     lab.font = { size: 10, color: { argb: TEXT_DARK } };
@@ -204,6 +252,20 @@ export async function buildFichaBuffer(
     val.font = { size: 10, color: { argb: TEXT_VALUE } };
     val.alignment = { horizontal: "left", vertical: "middle", indent: 1, wrapText: true };
     val.border = ALL_BORDERS;
+    // Desplegable (validación de lista) sobre la celda de valor.
+    if (list) {
+      const strict = STRICT_LISTS.has(list);
+      val.dataValidation = {
+        type: "list",
+        allowBlank: true,
+        formulae: [listRanges[list]],
+        showErrorMessage: strict,
+        errorStyle: "warning",
+        errorTitle: "Valor fuera de la lista",
+        error: "Selecciona una opción del desplegable.",
+        showInputMessage: false,
+      };
+    }
     // Altura automática: no se fija para permitir que Excel ajuste el alto
     // cuando un valor largo (giro, dirección) hace wrap.
   };
@@ -230,7 +292,7 @@ export async function buildFichaBuffer(
   for (const section of FICHA_SECTIONS) {
     sectionHeader(section.title + " (a completar por el proveedor)");
     for (const f of section.fields) {
-      dataRow(f.label, fieldValue(supplier, f.key));
+      dataRow(f.label, fieldValue(supplier, f.key), f.list);
     }
     spacer();
   }
@@ -241,7 +303,6 @@ export async function buildFichaBuffer(
     dataRow(f.label, fieldValue(supplier, f.key));
   }
   dataRow("Fecha", "");
-  dataRow("Cargo del representante legal", "");
 
   // Campo de firma agrandado (sin timbre): etiqueta + caja alta para firmar.
   const firmaStart = ws.addRow(["Firma del representante legal", ""]).number;

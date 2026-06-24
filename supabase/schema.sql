@@ -22,6 +22,7 @@ create table if not exists public.suppliers (
   rut_tax_id          text not null default '',
   giro                text not null default '',
   categorias          text[] not null default '{}',
+  subcategorias       text[] not null default '{}',  -- tipo de material por categoría
   -- Ubicación
   pais                text not null default '',
   ciudad              text not null default '',
@@ -72,6 +73,7 @@ create index if not exists idx_suppliers_ciudad on public.suppliers (ciudad);
 create index if not exists idx_suppliers_email on public.suppliers (email);
 create index if not exists idx_suppliers_estado on public.suppliers (estado);
 create index if not exists idx_suppliers_categorias on public.suppliers using gin (categorias);
+create index if not exists idx_suppliers_subcategorias on public.suppliers using gin (subcategorias);
 
 -- ────────────────────────── supplier_documents ─────────────────────────────
 create table if not exists public.supplier_documents (

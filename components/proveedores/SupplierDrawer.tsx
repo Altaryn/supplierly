@@ -21,9 +21,9 @@ import {
   TIPO_DOC,
   TIPO_CUENTA,
   MONEDAS,
-  TIPO_CONTRIBUYENTE,
-  REGIMEN_TRIBUTARIO,
+  CONDICION_PAGO,
   DOC_ESTADOS,
+  subcategoriaSuggestions,
 } from "@/lib/constants";
 import { EMISOR_COMPANIES, DEFAULT_EMISOR_KEY } from "@/lib/companies";
 import { initials, joinCategories, fmtBytes, fmtDate } from "@/lib/format";
@@ -285,6 +285,17 @@ export function SupplierDrawer({
                   <label className="field-label">Categorías</label>
                   <TagInput value={draft.categorias} onChange={(v) => set("categorias", v)} suggestions={categories} />
                 </div>
+                <div className="field col-2">
+                  <label className="field-label">
+                    Subcategorías <span className="field-opt">(tipo de material)</span>
+                  </label>
+                  <TagInput
+                    value={draft.subcategorias}
+                    onChange={(v) => set("subcategorias", v)}
+                    suggestions={subcategoriaSuggestions(draft.categorias)}
+                    placeholder="Agregar subcategoría…"
+                  />
+                </div>
                 <DField label="Web" value={draft.web} onChange={(v) => set("web", v)} ph="https://…" />
               </Section>
             </>
@@ -304,7 +315,7 @@ export function SupplierDrawer({
           {tab === "comercial" && (
             <>
               <Section title="Condiciones comerciales">
-                <DField label="Condiciones de pago" value={draft.condiciones_pago} onChange={(v) => set("condiciones_pago", v)} ph="30 días" />
+                <DSelect label="Condición de pago" value={draft.condiciones_pago} onChange={(v) => set("condiciones_pago", v)} options={CONDICION_PAGO} />
                 <DSelect label="Forma de pago" value={draft.forma_pago} onChange={(v) => set("forma_pago", v)} options={FORMA_PAGO} />
                 <DSelect label="Tipo de documento tributario" col2 value={draft.tipo_doc} onChange={(v) => set("tipo_doc", v)} options={TIPO_DOC} />
               </Section>
@@ -313,10 +324,6 @@ export function SupplierDrawer({
                 <DSelect label="Tipo de cuenta" value={draft.tipo_cuenta} onChange={(v) => set("tipo_cuenta", v)} options={TIPO_CUENTA} />
                 <DField label="Número de cuenta" value={draft.cuenta_bancaria} onChange={(v) => set("cuenta_bancaria", v)} />
                 <DSelect label="Moneda" value={draft.moneda} onChange={(v) => set("moneda", v)} options={MONEDAS} />
-              </Section>
-              <Section title="Tributario">
-                <DSelect label="Tipo de contribuyente" value={draft.tipo_contribuyente} onChange={(v) => set("tipo_contribuyente", v)} options={TIPO_CONTRIBUYENTE} />
-                <DSelect label="Régimen tributario" col2 value={draft.regimen_tributario} onChange={(v) => set("regimen_tributario", v)} options={REGIMEN_TRIBUTARIO} />
               </Section>
             </>
           )}

@@ -28,6 +28,7 @@ export interface Supplier {
   rut_tax_id: string;
   giro: string;
   categorias: string[];
+  subcategorias: string[]; // tipo de material por categoría seleccionada
   // Ubicación
   pais: string;
   ciudad: string;
