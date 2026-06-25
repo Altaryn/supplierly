@@ -74,6 +74,33 @@
   min-width: 150px;
 }
 
+/* Badge de empresa solicitante: color distinto por empresa para diferenciarlas
+   de un vistazo (mismo criterio que el tema de color de la ficha .xlsx). Un
+   punto de color hace de ícono identificador. */
+.badge.empresa-chile,
+.badge.empresa-aquapanel {
+  font-weight: 600;
+}
+.badge.empresa-chile::before,
+.badge.empresa-aquapanel::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.badge.empresa-chile {
+  background: rgba(0, 160, 225, 0.12);
+  color: #1aa7e0;
+  border-color: rgba(0, 160, 225, 0.32);
+}
+.badge.empresa-aquapanel {
+  background: rgba(91, 184, 51, 0.14);
+  color: #5bb833;
+  border-color: rgba(91, 184, 51, 0.34);
+}
+
 /* Botón-archivo (Adjuntar PDF) alineado como botón secundario. */
 .btn label,
 label.btn {
