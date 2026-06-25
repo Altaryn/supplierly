@@ -280,6 +280,7 @@ function Inner({
           <thead>
             <tr>
               <th>Razón Social</th>
+              <th>Nombre de Fantasía</th>
               <th>Empresa</th>
               <th>RUT / Tax ID</th>
               <th>Código SAP</th>
@@ -299,6 +300,7 @@ function Inner({
                     <span style={{ fontWeight: 500 }}>{s.razon_social}</span>
                   </div>
                 </td>
+                <td>{s.nombre_fantasia || "—"}</td>
                 <td>
                   {s.empresa ? (
                     <span className="badge category">{s.empresa}</span>
