@@ -213,13 +213,24 @@ export async function buildFichaBuffer(
   // Cada lista va en su propia columna; se referencia por rango. Para listas
   // largas (comunas/ciudades) no se puede usar la fórmula inline de 255 chars.
   const listsWs = wb.addWorksheet("Listas", { state: "hidden" });
-  const COL_LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
+  // Letra de columna desde el índice (1→A, 26→Z, 27→AA…); robusto ante cualquier
+  // número de listas (evita quedarse sin letras al agregar una nueva).
+  const colLetter = (n: number): string => {
+    let s = "";
+    while (n > 0) {
+      const m = (n - 1) % 26;
+      s = String.fromCharCode(65 + m) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  };
   const listRanges = {} as Record<ListName, string>;
   (Object.keys(LIST_SOURCES) as ListName[]).forEach((name, idx) => {
     const arr = LIST_SOURCES[name];
-    const letter = COL_LETTERS[idx];
+    const col = idx + 1;
+    const letter = colLetter(col);
     arr.forEach((v, i) => {
-      listsWs.getCell(`${letter}${i + 1}`).value = v;
+      listsWs.getCell(i + 1, col).value = v; // (fila, columna) numéricos
     });
     listRanges[name] = `Listas!$${letter}$1:$${letter}$${arr.length}`;
   });
