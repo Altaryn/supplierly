@@ -106,3 +106,121 @@
 label.btn {
   align-items: center;
 }
+
+/* ── Pantalla de login (Supabase Auth) ── */
+.login-wrap {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-4);
+  background: var(--bg-canvas);
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-4, 16px);
+  padding: var(--sp-6, 28px);
+  box-shadow: var(--shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.35));
+}
+.login-brand {
+  text-align: center;
+  margin-bottom: var(--sp-5, 22px);
+}
+.login-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-3);
+  background: rgba(0, 160, 225, 0.14);
+  color: #1aa7e0;
+  margin-bottom: var(--sp-3);
+}
+.login-logo svg {
+  width: 22px;
+  height: 22px;
+}
+.login-title {
+  font-size: var(--fs-xl, 20px);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.login-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--status-urgent);
+  background: var(--status-urgent-soft);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  border-radius: var(--r-2);
+  padding: var(--sp-2) var(--sp-3);
+}
+.login-error svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.login-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--sp-2);
+}
+.login-foot {
+  margin-top: var(--sp-5, 22px);
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+/* ── Identidad de usuario + cerrar sesión en la topbar ── */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-left: var(--sp-2);
+  margin-left: var(--sp-1, 4px);
+  border-left: 1px solid var(--border-subtle);
+}
+.user-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 160, 225, 0.14);
+  color: #1aa7e0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-email {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-menu form {
+  display: flex;
+}
+@media (max-width: 720px) {
+  .user-email {
+    display: none;
+  }
+}

@@ -7,7 +7,13 @@ import { Topbar } from "./Topbar";
 // Shell de la app: grilla sidebar + columna principal (topbar + contenido).
 // Gestiona el estado del sidebar off-canvas en móvil (≤720px), que el CSS
 // portado anima vía .sidebar.open / .mobile-nav-scrim.open.
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  userEmail,
+}: {
+  children: React.ReactNode;
+  userEmail?: string;
+}) {
   const [navOpen, setNavOpen] = useState(false);
 
   return (
@@ -15,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="app">
         <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
         <main className="main">
-          <Topbar onToggleNav={() => setNavOpen((v) => !v)} />
+          <Topbar onToggleNav={() => setNavOpen((v) => !v)} userEmail={userEmail} />
           <div className="workarea">{children}</div>
         </main>
       </div>

@@ -1,10 +1,17 @@
 "use client";
 
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 import { IconMenu, IconSearch, IconBell, IconPlus } from "@/components/icons";
 import { EVT } from "@/lib/events";
 
-export function Topbar({ onToggleNav }: { onToggleNav: () => void }) {
+export function Topbar({
+  onToggleNav,
+  userEmail,
+}: {
+  onToggleNav: () => void;
+  userEmail?: string;
+}) {
   const emit = (name: string) =>
     window.dispatchEvent(new CustomEvent(name));
 
@@ -53,6 +60,7 @@ export function Topbar({ onToggleNav }: { onToggleNav: () => void }) {
           <IconPlus sw={2.25} />
           <span className="btn-label">Nuevo proveedor</span>
         </button>
+        {userEmail ? <UserMenu email={userEmail} /> : null}
       </div>
     </header>
   );

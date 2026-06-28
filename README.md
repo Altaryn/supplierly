@@ -52,6 +52,30 @@ npm run dev      # http://localhost:3000  → redirige a /proveedores
    arriba.
 3. Deploy. El build ya está validado (`npm run build`).
 
+## Autenticación (Supabase Auth)
+
+Cuando Supabase está configurado, **toda la app queda detrás de login**: un
+*middleware* protege cada ruta y redirige a `/login` si no hay sesión. En **modo
+demo** (sin variables de Supabase) no hay gate y la app queda abierta para
+revisar el diseño.
+
+- **Solo usuarios registrados** (login con email + contraseña). **No hay
+  auto-registro**: las cuentas las crea el administrador.
+- **Crear usuarios**: Supabase Studio → *Authentication → Users → Add user*.
+  Indica email y contraseña y marca *Auto Confirm User* para que pueda entrar de
+  inmediato (sin email de confirmación).
+- **Iniciar sesión**: `/login`. **Cerrar sesión**: botón en la barra superior.
+- No requiere variables nuevas: usa `NEXT_PUBLIC_SUPABASE_URL` y
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` (la sesión viaja en cookies httpOnly vía
+  `@supabase/ssr`).
+- Las Server Actions de escritura exigen sesión (defensa en profundidad, además
+  del gate de páginas).
+
+> Nota: la lectura de datos sigue gobernada por las políticas RLS de
+> `supabase/schema.sql` (lectura pública con la anon key). Si quieres además que
+> la API de datos solo responda a usuarios autenticados, se pueden endurecer las
+> políticas RLS a `authenticated` (lecturas con sesión) — pídelo y se agrega.
+
 ## Cambios de campos solicitados (§7)
 
 | Cambio | Estado |

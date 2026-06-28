@@ -17,6 +17,7 @@ import {
   liveMode,
 } from "@/lib/services/suppliers";
 import { buildFichaBuffer, parseFichaBuffer } from "@/lib/ficha/excel";
+import { getCurrentUser } from "@/lib/supabase/auth";
 import type {
   ActionResult,
   Supplier,
@@ -40,6 +41,15 @@ type ActionFailure = {
   error: string;
   fieldErrors?: Record<string, string>;
 };
+
+// Guard de sesión para las mutaciones (defensa en profundidad: el middleware ya
+// bloquea las páginas, pero las Server Actions son invocables directamente). En
+// modo demo no aplica. El try/catch de cada acción convierte el throw en error.
+async function requireAuthOrThrow(): Promise<void> {
+  if (!liveMode()) return;
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Tu sesión expiró. Vuelve a iniciar sesión.");
+}
 
 function validate(
   input: unknown,
@@ -65,6 +75,7 @@ export async function createSupplierAction(
   const v = validate(input);
   if (!v.ok) return v.result;
   try {
+    await requireAuthOrThrow();
     const supplier = await insertSupplier(v.value);
     revalidatePath(PATH);
     return {
@@ -85,6 +96,7 @@ export async function updateSupplierAction(
   const v = validate(input);
   if (!v.ok) return v.result;
   try {
+    await requireAuthOrThrow();
     const supplier = await updateSupplier(id, v.value);
     revalidatePath(PATH);
     return {
@@ -103,6 +115,7 @@ export async function deleteSupplierAction(
   label: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
+    await requireAuthOrThrow();
     await deleteSupplier(id, label);
     revalidatePath(PATH);
     return {
@@ -148,6 +161,7 @@ export async function generateFichaAction(
   emisorKey?: string | null,
 ): Promise<ActionResult<{ base64: string; fileName: string; mimeType: string }>> {
   try {
+    await requireAuthOrThrow();
     const { buffer, fileName } = await buildFichaBuffer(supplier, emisorKey);
     const mimeType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -243,6 +257,7 @@ export async function importSupplierAction(
   }
 
   try {
+    await requireAuthOrThrow();
     // Detección de duplicados (§21): RUT / Código SAP / Razón social.
     const existing = await getSuppliers();
     const norm = (s: string) => s.trim().toLowerCase();
@@ -323,6 +338,7 @@ export async function uploadSignedPdfAction(
   base64: string,
 ): Promise<ActionResult<{ document: SupplierDocument | null }>> {
   try {
+    await requireAuthOrThrow();
     const doc = await uploadDocument({
       supplierId,
       type: "signed_pdf",
@@ -367,6 +383,7 @@ export async function reviewDocumentationAction(
   docId?: string,
 ): Promise<ActionResult<{ supplierId: string }>> {
   try {
+    await requireAuthOrThrow();
     if (liveMode()) {
       await setEstadoDocumental(
         supplierId,
