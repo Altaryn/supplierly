@@ -17,10 +17,10 @@ import {
   IconEdit,
   IconTrash,
   IconUsers,
+  IconTag,
 } from "@/components/icons";
 import { ESTADOS } from "@/lib/constants";
 import { EVT } from "@/lib/events";
-import { initials, joinCategories } from "@/lib/format";
 import { allCategories, filterSuppliers } from "@/lib/supplier-form";
 import {
   deleteSupplierAction,
@@ -304,12 +304,18 @@ function Inner({
             {filtered.map((s) => (
               <tr key={s.id} onClick={() => openDrawer(s)} style={{ cursor: "pointer" }}>
                 <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span className="company-icon">{initials(s.razon_social)}</span>
-                    <span style={{ fontWeight: 500 }}>{s.razon_social}</span>
-                  </div>
+                  <span style={{ fontWeight: 500 }}>{s.razon_social}</span>
                 </td>
-                <td>{s.nombre_fantasia || "—"}</td>
+                <td>
+                  {s.nombre_fantasia ? (
+                    <span className="fantasia-cell">
+                      <IconTag />
+                      {s.nombre_fantasia}
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
+                  )}
+                </td>
                 <td>
                   {s.empresa ? (
                     <span className={`badge ${empresaBadgeClass(s.empresa)}`}>
@@ -409,14 +415,11 @@ function Inner({
         {filtered.map((s) => (
           <div className="rfq-card prov-card" key={s.id} onClick={() => openDrawer(s)}>
             <div className="rfq-card-head">
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                <span className="company-icon">{initials(s.razon_social)}</span>
-                <div style={{ minWidth: 0 }}>
-                  <div className="prov-card-name">{s.razon_social}</div>
-                  <div className="prov-card-sub">
-                    {s.nombre_fantasia}
-                    {s.codigo_sap ? ` · ${s.codigo_sap}` : ""}
-                  </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="prov-card-name">{s.razon_social}</div>
+                <div className="prov-card-sub">
+                  {s.nombre_fantasia}
+                  {s.codigo_sap ? ` · ${s.codigo_sap}` : ""}
                 </div>
               </div>
               <StatusBadge estado={s.estado} />

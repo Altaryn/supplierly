@@ -107,6 +107,23 @@ label.btn {
   align-items: center;
 }
 
+/* Columna Nombre de Fantasía: ícono de etiqueta + nombre, con el acento de marca
+   (violeta) en el ícono, para destacar el nombre comercial frente a la razón
+   social. */
+.fantasia-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.fantasia-cell svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-violet);
+  flex-shrink: 0;
+}
+
 /* ── Pantalla de login (Supabase Auth) ── */
 .login-wrap {
   min-height: 100vh;
