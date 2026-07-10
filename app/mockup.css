@@ -6,48 +6,59 @@
    01 · TOKENS
    ------------------------------------------------------------------------- */
 :root {
-  --bg-base:        #08080b;
-  --bg-canvas:      #0b0b10;
-  --bg-surface:     #0f0f15;
-  --bg-elevated:    #14141c;
-  --bg-overlay:     rgba(20, 20, 28, 0.72);
-  --bg-glass:       rgba(255, 255, 255, 0.025);
-  --bg-glass-hover: rgba(255, 255, 255, 0.045);
+  /* ── Intercom · superficies (cream canvas + white cards) ── */
+  --bg-base:        #f5f1ec;   /* cream canvas */
+  --bg-canvas:      #f5f1ec;   /* área de contenido = crema */
+  --bg-surface:     #ffffff;   /* tarjetas/paneles/drawer/modal blancos */
+  --bg-elevated:    #ffffff;   /* superficies elevadas (toast, menús) */
+  --surface-2:      #ebe7e1;   /* crema un paso más oscura (grupos pill, tintes) */
+  --bg-overlay:     rgba(17, 17, 17, 0.42);   /* scrim de modales/drawer */
+  --bg-glass:       rgba(17, 17, 17, 0.022);
+  --bg-glass-hover: rgba(17, 17, 17, 0.05);
 
-  --border-subtle:  rgba(255, 255, 255, 0.04);
-  --border-default: rgba(255, 255, 255, 0.07);
-  --border-strong:  rgba(255, 255, 255, 0.12);
-  --border-focus:   rgba(139, 124, 255, 0.55);
+  /* Hairlines cálidos */
+  --border-subtle:  #ebe7e1;
+  --border-default: #d3cec6;
+  --border-strong:  #c4beb2;
+  --border-focus:   #ff5600;   /* anillo de foco Fin Orange */
 
-  --text-primary:   #f4f4f7;
-  --text-secondary: #a8a8b3;
-  --text-tertiary:  #6e6e7a;
-  --text-quaternary:#48484f;
-  --text-inverse:   #08080b;
+  /* Tinta charcoal */
+  --text-primary:   #111111;
+  --text-secondary: #626260;
+  --text-tertiary:  #7b7b78;
+  --text-quaternary:#9c9fa5;
+  --text-inverse:   #ffffff;
 
-  --accent-violet:  #8b7cff;
-  --accent-violet-soft: rgba(139, 124, 255, 0.16);
-  --accent-violet-glow: rgba(139, 124, 255, 0.32);
-  --accent-cyan:    #6ee7ff;
-  --accent-cyan-soft: rgba(110, 231, 255, 0.14);
+  /* Acento del sistema = charcoal (Intercom: el primario es la tinta). Se
+     conservan los nombres --accent-violet/-cyan para no romper el cascade. */
+  --accent-violet:  #111111;
+  --accent-violet-soft: rgba(17, 17, 17, 0.06);
+  --accent-violet-glow: rgba(17, 17, 17, 0.14);
+  --accent-cyan:    #626260;
+  --accent-cyan-soft: rgba(17, 17, 17, 0.05);
 
-  /* Acción primaria · verde Supabase */
-  --accent-green:        #3ecf8e;
-  --accent-green-strong: #24b47e;
-  --accent-green-soft:   rgba(62, 207, 142, 0.16);
-  --accent-green-glow:   rgba(62, 207, 142, 0.34);
-  --btn-primary-text:    #04231a;
+  /* Acción primaria = charcoal (antes verde Supabase) */
+  --accent-green:        #111111;
+  --accent-green-strong: #000000;
+  --accent-green-soft:   rgba(17, 17, 17, 0.06);
+  --accent-green-glow:   rgba(17, 17, 17, 0.12);
+  --btn-primary-text:    #ffffff;
 
-  --status-success: #34d399;
-  --status-success-soft: rgba(52, 211, 153, 0.14);
-  --status-warning: #fbbf24;
-  --status-warning-soft: rgba(251, 191, 36, 0.14);
-  --status-urgent:  #ff6b6b;
-  --status-urgent-soft: rgba(255, 107, 107, 0.14);
-  --status-pending: #94a3b8;
-  --status-pending-soft: rgba(148, 163, 184, 0.12);
-  --status-info:    #60a5fa;
-  --status-info-soft: rgba(96, 165, 250, 0.14);
+  /* Fin Orange · único acento cromático, uso reservado (marca/foco) */
+  --fin-orange:      #ff5600;
+  --fin-orange-soft: rgba(255, 86, 0, 0.18);
+
+  /* Estados · paleta semántica legible sobre crema/blanco */
+  --status-success: #0f8a44;
+  --status-success-soft: rgba(18, 178, 90, 0.14);
+  --status-warning: #b4470a;
+  --status-warning-soft: rgba(254, 76, 2, 0.14);
+  --status-urgent:  #c41c1c;
+  --status-urgent-soft: rgba(196, 28, 28, 0.12);
+  --status-pending: #6b6b68;
+  --status-pending-soft: rgba(123, 123, 120, 0.14);
+  --status-info:    #0007cb;
+  --status-info-soft: rgba(0, 7, 203, 0.10);
 
   --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Geist Mono", ui-monospace, monospace;
@@ -89,12 +100,14 @@
   --r-6: 20px;
   --r-pill: 999px;
 
-  --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-2: 0 4px 12px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.5);
-  --shadow-3: 0 12px 32px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
-  --shadow-4: 0 24px 64px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 0 1px rgba(139,124,255,0.25), 0 8px 24px rgba(139,124,255,0.2);
-  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.04);
+  /* Intercom resiste las sombras: profundidad por blanco-sobre-crema + hairline.
+     Solo overlays conservan una sombra muy sutil. */
+  --shadow-1: none;
+  --shadow-2: 0 1px 2px rgba(17,17,17,0.05);
+  --shadow-3: 0 10px 28px rgba(17,17,17,0.10);
+  --shadow-4: 0 20px 56px rgba(17,17,17,0.16);
+  --shadow-glow: none;
+  --shadow-inset: none;
 
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -136,17 +149,8 @@ body {
   overscroll-behavior: none;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 800px 600px at 15% -10%, rgba(139, 124, 255, 0.10), transparent 60%),
-    radial-gradient(ellipse 600px 500px at 95% 110%, rgba(110, 231, 255, 0.06), transparent 60%),
-    radial-gradient(ellipse 400px 400px at 50% 50%, rgba(34, 25, 64, 0.18), transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
+/* Intercom no usa gradientes atmosféricos: el lienzo crema hace ese trabajo. */
+body::before { content: none; }
 
 button, input, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; }
@@ -155,17 +159,17 @@ a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
 img, svg { display: block; max-width: 100%; }
 
-::selection { background: var(--accent-violet-glow); color: white; }
+::selection { background: var(--fin-orange-soft); color: var(--text-primary); }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.06);
+  background: rgba(17,17,17,0.16);
   border-radius: var(--r-pill);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.12); background-clip: padding-box; border: 2px solid transparent; }
+::-webkit-scrollbar-thumb:hover { background: rgba(17,17,17,0.28); background-clip: padding-box; border: 2px solid transparent; }
 
 /* -------------------------------------------------------------------------
    03 · APP SHELL
@@ -3250,3 +3254,208 @@ img, svg { display: block; max-width: 100%; }
 .pdf-file-sub { font-size: var(--fs-xs); color: var(--text-tertiary); }
 .pdf-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .pdf-empty { font-size: var(--fs-sm); color: var(--text-tertiary); margin-top: var(--sp-2); }
+
+/* =========================================================================
+   24 · INTERCOM SYSTEM LAYER  (tema único · claro)
+   Reescribe los componentes que llevaban degradados, glows, sombras densas,
+   tintes blancos, eyebrows en mayúsculas y animaciones "vivas" del sistema
+   oscuro original, para alinearlos con el design system de Intercom:
+   crema + tarjetas blancas, hairlines, charcoal como primario y Fin Orange
+   como único acento cromático (marca/foco). Al ir al final del archivo, gana
+   el cascade sobre las reglas base de igual especificidad.
+   ========================================================================= */
+
+/* ── Base ── */
+.main { background: var(--bg-canvas); }
+
+/* ── Sidebar · blanco sobre crema, sin blur ni degradado ── */
+.sidebar {
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-default);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.brand {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  box-shadow: none;
+  position: relative;
+}
+.brand:hover { transform: none; }
+/* Único punto de Fin Orange en el logotipo (acento de marca) */
+.brand::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fin-orange);
+  border: 2px solid var(--bg-surface);
+}
+.nav-item.active { color: var(--text-primary); background: var(--accent-violet-soft); box-shadow: none; }
+.nav-item.active::before { background: var(--fin-orange); box-shadow: none; }
+.nav-avatar { background: var(--text-primary); color: var(--text-inverse); box-shadow: none; }
+.nav-avatar:hover { transform: none; }
+
+/* ── Header · crema opaca, sin blur ── */
+.header {
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-default);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.search-trigger { background: var(--bg-surface); }
+.search-trigger:hover { background: var(--bg-surface); border-color: var(--border-strong); }
+.kbd { background: var(--surface-2); }
+
+/* ── Botones ── */
+.btn-primary {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border: 1px solid var(--text-primary);
+  box-shadow: none;
+}
+.btn-primary:hover { background: #000; transform: none; box-shadow: none; }
+[data-theme] .btn-primary:hover { background: #000; }
+.btn-primary:active { transform: translateY(1px); }
+.btn-secondary { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); box-shadow: none; }
+.btn-secondary:hover { background: var(--bg-glass); border-color: var(--border-strong); }
+.btn-ghost:hover { background: var(--bg-glass); color: var(--text-primary); }
+.btn-icon:hover { background: var(--bg-glass); color: var(--text-primary); border-color: var(--border-default); }
+
+/* ── Eyebrows / labels: Intercom no usa mayúsculas trackeadas ── */
+.page-eyebrow,
+.section-title,
+.form-section-title,
+.meta-label,
+.prov-section-title,
+.product-table-head > span,
+.import-detected-item .k,
+.cmdk-group,
+.template-tile-tag,
+.bp-tag {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.page-eyebrow { color: var(--text-secondary); }
+.page-eyebrow::before { animation: none; box-shadow: none; background: var(--fin-orange); }
+
+/* ── Toolbar / búsqueda / foco naranja ── */
+.search-inline { background: var(--bg-surface); }
+.search-inline:focus-within {
+  border-color: var(--fin-orange);
+  box-shadow: 0 0 0 3px var(--fin-orange-soft);
+  background: var(--bg-surface);
+}
+
+/* ── Tabla ── */
+.table-wrap { background: var(--bg-surface); border: 1px solid var(--border-default); }
+.table thead th {
+  background: var(--bg-surface);
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+  text-transform: none;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.table tbody tr { border-bottom: 1px solid var(--border-subtle); }
+.table tbody tr:hover { background: var(--bg-glass); }
+.status-dot::after { animation: none; }
+.sap-copy { border-radius: var(--r-1); }
+.sap-copy:hover { text-decoration: underline; }
+
+/* ── Badges / chips ── */
+.badge { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
+.badge.category { background: var(--accent-violet-soft); color: var(--text-secondary); border-color: var(--border-subtle); }
+
+/* ── Tarjetas (móvil) / KPI / settings ── */
+.rfq-card { background: var(--bg-surface); box-shadow: none; }
+.rfq-card:hover { border-color: var(--border-strong); transform: none; box-shadow: var(--shadow-2); }
+.kpi-card { background: var(--bg-surface); }
+.kpi-card:hover { transform: none; box-shadow: var(--shadow-2); }
+.settings-card { background: var(--bg-surface); }
+
+/* ── Segmented / tabs / toggles: pill crema → seleccionado blanco ── */
+.tabs, .toggle-group, .seg-group { background: var(--surface-2); border-color: var(--border-default); }
+.tab.active, .toggle-option.active, .seg.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-2);
+}
+.tab-count, .product-unit { background: var(--surface-2); }
+.tab.active .tab-count { background: rgba(17,17,17,0.10); color: var(--text-primary); }
+.progress { background: rgba(17,17,17,0.08); }
+.progress-fill { background: var(--text-primary); }
+.progress-fill::after { content: none; animation: none; }
+.ring-track { stroke: rgba(17,17,17,0.10); }
+
+/* ── Empty state · sin anillo giratorio ── */
+.empty-illus { background: var(--accent-violet-soft); }
+.empty-illus::before { animation: none; border-color: var(--border-default); }
+.empty-illus svg { color: var(--text-secondary); }
+
+/* ── Drawer / Modal · superficies blancas planas ── */
+.drawer-scrim, .modal-scrim, .cmdk-scrim, .mobile-nav-scrim {
+  background: var(--bg-overlay);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.drawer { background: var(--bg-surface); border-left: 1px solid var(--border-default); box-shadow: var(--shadow-3); }
+.drawer-header { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); }
+.drawer-footer { background: var(--bg-surface); }
+.modal { background: var(--bg-surface); box-shadow: var(--shadow-4); }
+.modal-header { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); }
+.modal-footer { background: var(--bg-surface); }
+.cmdk { background: var(--bg-surface); box-shadow: var(--shadow-4); }
+.cmdk-footer, .preview-bar, .preview-sim-note { background: var(--bg-glass); }
+
+/* Banner de duplicado (importación) → semántica de aviso, no violeta */
+.duplicate-banner { background: var(--status-warning-soft); border-left: 3px solid var(--status-warning); }
+.duplicate-banner svg { color: var(--status-warning); }
+
+/* ── Formularios ── */
+.field-label .req { color: var(--fin-orange); }
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--fin-orange);
+  box-shadow: 0 0 0 3px var(--fin-orange-soft);
+  background: var(--bg-surface);
+}
+.product-table-head { background: var(--bg-glass); }
+.product-table-row .input:focus, .product-table-row .select:focus {
+  border-color: var(--fin-orange);
+  box-shadow: 0 0 0 3px var(--fin-orange-soft);
+  background: var(--bg-surface);
+}
+.toggle-option.active.urgent { background: var(--status-urgent-soft); color: var(--status-urgent); box-shadow: none; }
+.urgent-banner { animation: none; }
+
+/* Chips seleccionables (categorías / importación) */
+.chip.selected { background: var(--accent-violet-soft); border-color: var(--border-strong); color: var(--text-primary); }
+.chip.selected .chip-check { background: var(--text-primary); border-color: var(--text-primary); }
+
+/* Dropzones / adjuntos → acento tinta (sin violeta) */
+.dropzone { background: var(--bg-glass); }
+.dropzone:hover, .dropzone.dragging { border-color: var(--text-primary); background: var(--bg-glass-hover); transform: none; }
+.dropzone-icon { background: var(--accent-violet-soft); color: var(--text-primary); }
+.dropzone-title strong { color: var(--text-primary); }
+.attachment-icon { background: var(--accent-violet-soft); color: var(--text-primary); }
+.import-drop:hover, .import-drop:focus-visible, .import-drop.dragover { border-color: var(--text-primary); background: var(--bg-glass-hover); }
+.import-drop svg { color: var(--text-secondary); }
+.import-drop.has-file svg { color: var(--status-success); }
+.pdf-attach:hover, .pdf-attach:focus-visible { border-color: var(--text-primary); background: var(--bg-glass-hover); }
+.pdf-attach svg { color: var(--text-secondary); }
+.pdf-file-ic { background: var(--status-urgent-soft); color: var(--status-urgent); }
+.ficha-field-chip::before { background: var(--text-tertiary); }
+.ficha-preview-head svg, .ficha-sign-note svg { color: var(--text-secondary); }
+
+/* Drawer de proveedor · acciones destructivas con color semántico */
+.prov-drawer-del { color: var(--status-urgent); }
+.prov-drawer-del:hover { background: var(--status-urgent-soft); color: var(--status-urgent); }
+
+/* ── Toasts ── */
+.toast { background: var(--bg-elevated); box-shadow: var(--shadow-3); }
+.toast::before { background: var(--toast-color, var(--text-primary)); }
+.toast.info { --toast-color: var(--status-info); }
+.toast-progress { animation: none; display: none; }

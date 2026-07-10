@@ -42,25 +42,17 @@ function empresaBadgeClass(empresa: string): string {
 
 export function ProveedoresScreen({
   initialSuppliers,
-  isLive,
 }: {
   initialSuppliers: Supplier[];
-  isLive: boolean;
 }) {
   return (
     <ToastProvider>
-      <Inner initialSuppliers={initialSuppliers} isLive={isLive} />
+      <Inner initialSuppliers={initialSuppliers} />
     </ToastProvider>
   );
 }
 
-function Inner({
-  initialSuppliers,
-  isLive,
-}: {
-  initialSuppliers: Supplier[];
-  isLive: boolean;
-}) {
+function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
   const toast = useToast();
   const [suppliers, setSuppliers] = useState<Supplier[]>(
     [...initialSuppliers].sort(byName),
@@ -174,40 +166,6 @@ function Inner({
 
   return (
     <div className="view" id="view-proveedores">
-      {/* Banner de conexión */}
-      <div className="prov-banner" data-mode={isLive ? "live" : "demo"}>
-        <div className="prov-banner-main">
-          <span className="prov-banner-dot" />
-          <span>
-            {isLive ? (
-              <>
-                <strong>Conectado a Supabase</strong> · {suppliers.length}{" "}
-                proveedores
-              </>
-            ) : (
-              <>
-                <strong>Modo demo</strong> · sin conexión a Supabase. Las
-                escrituras no se persisten.
-              </>
-            )}
-          </span>
-        </div>
-        {!isLive && (
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() =>
-              toast(
-                "info",
-                "Cómo conectar",
-                "Define NEXT_PUBLIC_SUPABASE_URL, ANON_KEY y SERVICE_ROLE_KEY en .env.local (ver README).",
-              )
-            }
-          >
-            ¿Cómo conectar?
-          </button>
-        )}
-      </div>
-
       {/* Toolbar */}
       <section className="toolbar">
         <div className="toolbar-left-filters">

@@ -1,6 +1,5 @@
 "use client";
 
-import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { IconMenu, IconSearch, IconBell, IconPlus } from "@/components/icons";
 import { EVT } from "@/lib/events";
@@ -45,7 +44,6 @@ export function Topbar({
             <span className="kbd">K</span>
           </span>
         </button>
-        <ThemeToggle />
         <button
           className="btn-icon hide-mobile"
           title="Notificaciones"

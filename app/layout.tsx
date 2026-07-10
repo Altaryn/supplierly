@@ -8,14 +8,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08080b",
+  themeColor: "#f5f1ec",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
-
-// Aplica el tema guardado antes del primer render (evita parpadeo claro/oscuro).
-const themeBootstrap = `(function(){try{if(localStorage.getItem('supplierly.theme.v2')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -25,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

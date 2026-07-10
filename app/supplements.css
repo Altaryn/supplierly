@@ -7,7 +7,7 @@
 
 /* Input en estado de error (validación). */
 .input.input-error {
-  border-color: rgba(255, 107, 107, 0.55);
+  border-color: var(--status-urgent);
   background: var(--status-urgent-soft);
 }
 
@@ -90,15 +90,18 @@
   background: currentColor;
   flex-shrink: 0;
 }
-.badge.empresa-chile {
-  background: rgba(0, 160, 225, 0.12);
-  color: #1aa7e0;
-  border-color: rgba(0, 160, 225, 0.32);
-}
+.badge.empresa-chile,
 .badge.empresa-aquapanel {
-  background: rgba(91, 184, 51, 0.14);
-  color: #5bb833;
-  border-color: rgba(91, 184, 51, 0.34);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+/* Punto identificador por empresa: azul Knauf Chile · verde Aquapanel. */
+.badge.empresa-chile::before {
+  background: #0007cb;
+}
+.badge.empresa-aquapanel::before {
+  background: #12a150;
 }
 
 /* Botón-archivo (Adjuntar PDF) alineado como botón secundario. */
@@ -120,7 +123,7 @@ label.btn {
 .fantasia-cell svg {
   width: 14px;
   height: 14px;
-  color: var(--accent-violet);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
@@ -140,7 +143,7 @@ label.btn {
   border: 1px solid var(--border-default);
   border-radius: var(--r-4, 16px);
   padding: var(--sp-6, 28px);
-  box-shadow: var(--shadow-lg, 0 12px 40px rgba(0, 0, 0, 0.35));
+  box-shadow: var(--shadow-3);
 }
 .login-brand {
   text-align: center;
@@ -152,8 +155,8 @@ label.btn {
   width: 44px;
   height: 44px;
   border-radius: var(--r-3);
-  background: rgba(0, 160, 225, 0.14);
-  color: #1aa7e0;
+  background: var(--accent-violet-soft);
+  color: var(--text-primary);
   margin-bottom: var(--sp-3);
 }
 .login-logo svg {
@@ -182,7 +185,7 @@ label.btn {
   font-size: var(--fs-sm);
   color: var(--status-urgent);
   background: var(--status-urgent-soft);
-  border: 1px solid rgba(255, 107, 107, 0.25);
+  border: 1px solid var(--status-urgent-soft);
   border-radius: var(--r-2);
   padding: var(--sp-2) var(--sp-3);
 }
@@ -219,8 +222,8 @@ label.btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(0, 160, 225, 0.14);
-  color: #1aa7e0;
+  background: var(--text-primary);
+  color: var(--text-inverse);
   font-size: var(--fs-xs);
   font-weight: 700;
   flex-shrink: 0;
