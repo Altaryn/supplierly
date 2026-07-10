@@ -17,7 +17,6 @@ import {
   IconEdit,
   IconTrash,
   IconUsers,
-  IconTag,
 } from "@/components/icons";
 import { ESTADOS } from "@/lib/constants";
 import { EVT } from "@/lib/events";
@@ -247,7 +246,6 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
           <thead>
             <tr>
               <th>Razón Social</th>
-              <th>Nombre de Fantasía</th>
               <th>Empresa</th>
               <th>RUT / Tax ID</th>
               <th>Código SAP</th>
@@ -262,17 +260,14 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
             {filtered.map((s) => (
               <tr key={s.id} onClick={() => openDrawer(s)} style={{ cursor: "pointer" }}>
                 <td>
-                  <span style={{ fontWeight: 500 }}>{s.razon_social}</span>
-                </td>
-                <td>
-                  {s.nombre_fantasia ? (
-                    <span className="fantasia-cell">
-                      <IconTag />
-                      {s.nombre_fantasia}
-                    </span>
-                  ) : (
-                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
-                  )}
+                  <div className="prov-name-cell">
+                    <span className="prov-name-razon">{s.razon_social}</span>
+                    {s.nombre_fantasia ? (
+                      <span className="prov-name-fantasia">
+                        {s.nombre_fantasia}
+                      </span>
+                    ) : null}
+                  </div>
                 </td>
                 <td>
                   {s.empresa ? (
@@ -332,7 +327,20 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
                   </div>
                 </td>
                 <td>{s.pais || "—"}</td>
-                <td>{s.contacto || "—"}</td>
+                <td>
+                  {s.contacto || s.email ? (
+                    <div className="prov-contact-cell">
+                      {s.contacto ? (
+                        <span className="prov-contact-name">{s.contacto}</span>
+                      ) : null}
+                      {s.email ? (
+                        <span className="prov-contact-email">{s.email}</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td>
                   <StatusBadge estado={s.estado} />
                 </td>

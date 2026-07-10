@@ -2863,8 +2863,8 @@ img, svg { display: block; max-width: 100%; }
 .toolbar-left-filters .search-inline { flex: 1; min-width: 200px; max-width: 360px; }
 .prov-cat-filter { width: auto; min-width: 190px; flex-shrink: 0; }
 
-/* Tabla ancha (9 columnas + acciones) */
-.prov-table { min-width: 1160px; }
+/* Tabla ancha (8 columnas + acciones tras fusionar Razón Social + Fantasía) */
+.prov-table { min-width: 1040px; }
 
 /* Celdas */
 .cell-link {
@@ -3368,7 +3368,8 @@ img, svg { display: block; max-width: 100%; }
 
 /* ── Badges / chips ── */
 .badge { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
-.badge.category { background: var(--accent-violet-soft); color: var(--text-secondary); border-color: var(--border-subtle); }
+/* Categoría (KNO-108): chip rectangular de esquinas redondeadas, no píldora. */
+.badge.category { background: var(--accent-violet-soft); color: var(--text-secondary); border-color: var(--border-subtle); border-radius: var(--r-2); }
 
 /* ── Tarjetas (móvil) / KPI / settings ── */
 .rfq-card { background: var(--bg-surface); box-shadow: none; }
