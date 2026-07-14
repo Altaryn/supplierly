@@ -77,6 +77,19 @@
   flex-shrink: 0;
 }
 
+/* Variante de alerta del banner del modal de importación (ficha incompleta):
+   rojo y alineado arriba, porque el detalle enumera los datos que faltan y
+   puede ocupar varias líneas. */
+.duplicate-banner.is-error {
+  align-items: flex-start;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), transparent);
+  border-left-color: var(--status-urgent);
+}
+.duplicate-banner.is-error svg {
+  color: var(--status-urgent);
+  margin-top: 2px;
+}
+
 /* Badge de empresa solicitante: color distinto por empresa para diferenciarlas
    de un vistazo (mismo criterio que el tema de color de la ficha .xlsx). Un
    punto de color hace de ícono identificador. */

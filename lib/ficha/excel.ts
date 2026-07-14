@@ -107,6 +107,33 @@ const REP_FIELDS: FichaField[] = [
   { key: "rep_email", label: "E-mail del representante legal" },
 ];
 
+// Datos que la ficha le pide al proveedor: las secciones "a completar por el
+// proveedor" más el representante legal. Se deriva de la definición de arriba
+// para que no se desincronice si la ficha cambia. Quedan fuera los campos
+// solo-plantilla (Región, Plazo de pago) y la sección EMPRESA SOLICITANTE, que
+// la rellenamos nosotros.
+//
+// Al IMPORTAR una ficha se exigen todos (§13): la ficha es el documento formal
+// de alta y debe llegar completa. En el alta manual sin ficha son opcionales,
+// para poder crear el proveedor y completarlos después.
+export const FICHA_REQUIRED_FIELDS: ReadonlyArray<{
+  key: keyof SupplierInput;
+  label: string;
+}> = [...FICHA_SECTIONS.flatMap((s) => s.fields), ...REP_FIELDS].flatMap((f) =>
+  f.key ? [{ key: f.key as keyof SupplierInput, label: f.label }] : [],
+);
+
+// Datos que la ficha importada dejó en blanco. Recibe los campos parseados del
+// .xlsx (no el input del cliente), así que refleja lo que trae el archivo.
+export function missingFichaFields(
+  fields: Partial<SupplierInput>,
+): { key: keyof SupplierInput; label: string }[] {
+  return FICHA_REQUIRED_FIELDS.filter((f) => {
+    const v = fields[f.key];
+    return Array.isArray(v) ? v.length === 0 : !String(v ?? "").trim();
+  });
+}
+
 // Sinónimos de etiqueta → campo interno, para que el import tolere variaciones
 // (incluye los labels del mockup original). Se conservan "codigo sap" y
 // "telefono empresa" para seguir importando fichas antiguas que aún los traigan,

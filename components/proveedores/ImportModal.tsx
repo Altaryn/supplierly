@@ -41,6 +41,10 @@ export function ImportModal({
   const [web, setWeb] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [duplicate, setDuplicate] = useState<Supplier | null>(null);
+  // Detalle del rechazo del servidor (p. ej. la lista de datos que falta
+  // completar en la ficha): va en un banner y no solo en el toast, porque puede
+  // enumerar varios campos y el usuario necesita poder leerlos con calma.
+  const [importError, setImportError] = useState("");
 
   function reset() {
     setStep("upload");
@@ -53,6 +57,7 @@ export function ImportModal({
     setWeb("");
     setPdfFile(null);
     setDuplicate(null);
+    setImportError("");
   }
   function close() {
     reset();
@@ -65,6 +70,7 @@ export function ImportModal({
       toast("error", "Formato no válido", "Solo se aceptan archivos .xlsx");
       return;
     }
+    setImportError("");
     startTransition(async () => {
       const b64 = await fileToBase64(file);
       const res = await parseFichaAction(b64);
@@ -98,6 +104,7 @@ export function ImportModal({
       toast("error", "Falta categoría", "Agrega al menos una categoría.");
       return;
     }
+    setImportError("");
     startTransition(async () => {
       const pdfB64 = pdfFile ? await fileToBase64(pdfFile) : null;
       const res = await importSupplierAction({
@@ -109,6 +116,7 @@ export function ImportModal({
         resolution: resolution ?? null,
       });
       if (!res.ok) {
+        setImportError(res.error);
         toast("error", "No se pudo importar", res.error);
         return;
       }
@@ -186,6 +194,14 @@ export function ImportModal({
 
         {step === "review" ? (
           <div className="import-result">
+            {/* Ficha incompleta u otro rechazo del servidor */}
+            {importError ? (
+              <div className="duplicate-banner is-error" style={{ display: "flex" }}>
+                <IconAlert />
+                <span>{importError}</span>
+              </div>
+            ) : null}
+
             {/* Duplicado detectado (§21) */}
             {duplicate ? (
               <div className="duplicate-banner" style={{ display: "flex" }}>
@@ -354,7 +370,9 @@ export function ImportModal({
               ? "Carga un archivo .xlsx para comenzar"
               : duplicate
                 ? "Resuelve el duplicado para continuar"
-                : "Revisa los datos y confirma la importación"}
+                : importError
+                  ? "Corrige la ficha y vuelve a subirla"
+                  : "Revisa los datos y confirma la importación"}
           </span>
         </div>
         <div className="modal-footer-actions">

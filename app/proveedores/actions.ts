@@ -16,7 +16,11 @@ import {
   logAudit,
   liveMode,
 } from "@/lib/services/suppliers";
-import { buildFichaBuffer, parseFichaBuffer } from "@/lib/ficha/excel";
+import {
+  buildFichaBuffer,
+  parseFichaBuffer,
+  missingFichaFields,
+} from "@/lib/ficha/excel";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import type {
   ActionResult,
@@ -41,6 +45,13 @@ type ActionFailure = {
   error: string;
   fieldErrors?: Record<string, string>;
 };
+
+function fichaIncompletaMsg(missing: { label: string }[]): string {
+  const list = missing.map((m) => m.label).join(", ");
+  return missing.length === 1
+    ? `La ficha está incompleta: falta “${list}”. Complétala y vuelve a subirla.`
+    : `La ficha está incompleta: faltan ${missing.length} datos (${list}). Complétala y vuelve a subirla.`;
+}
 
 // Guard de sesión para las mutaciones (defensa en profundidad: el middleware ya
 // bloquea las páginas, pero las Server Actions son invocables directamente). En
@@ -242,22 +253,35 @@ export async function importSupplierAction(
     | { status: "duplicate"; match: Supplier }
   >
 > {
-  const v = validate(payload.input);
-  if (!v.ok) return v.result;
-  const value = v.value;
-
-  // §13: la ficha importada debe traer RUT / Tax ID (además de razón social y
-  // país, ya exigidos por el esquema). Contacto y email son opcionales.
-  if (!value.rut_tax_id.trim()) {
-    return {
-      ok: false,
-      error: "La ficha no incluye RUT / Tax ID, obligatorio para importar.",
-      fieldErrors: { rut_tax_id: "Requerido en la ficha" },
-    };
-  }
-
   try {
     await requireAuthOrThrow();
+
+    // §13: la ficha es el documento formal de alta, así que debe llegar
+    // completa. Se re-parsea el .xlsx aquí —en vez de confiar en el input del
+    // cliente— y se exige cada dato que la ficha le pide al proveedor. Esta
+    // exigencia es propia de la importación: el alta manual sin ficha los deja
+    // opcionales para poder completarlos después.
+    //
+    // Va ANTES del esquema a propósito: el esquema solo diría "revisa los
+    // campos marcados", y en el modal de importación esos campos ni siquiera se
+    // pueden editar. Hay que nombrar los datos que faltan en la ficha.
+    const missing = missingFichaFields(
+      parseFichaBuffer(fromB64(payload.xlsxBase64)).fields,
+    );
+    if (missing.length) {
+      return {
+        ok: false,
+        error: fichaIncompletaMsg(missing),
+        fieldErrors: Object.fromEntries(
+          missing.map((m) => [m.key, "Requerido en la ficha"]),
+        ),
+      };
+    }
+
+    const v = validate(payload.input);
+    if (!v.ok) return v.result;
+    const value = v.value;
+
     // Detección de duplicados (§21): RUT / Código SAP / Razón social.
     const existing = await getSuppliers();
     const norm = (s: string) => s.trim().toLowerCase();
