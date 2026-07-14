@@ -246,8 +246,8 @@ export async function importSupplierAction(
   if (!v.ok) return v.result;
   const value = v.value;
 
-  // §13: la ficha importada debe traer RUT / Tax ID (además de razón social,
-  // país y email, ya exigidos por el esquema).
+  // §13: la ficha importada debe traer RUT / Tax ID (además de razón social y
+  // país, ya exigidos por el esquema). Contacto y email son opcionales.
   if (!value.rut_tax_id.trim()) {
     return {
       ok: false,

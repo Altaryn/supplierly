@@ -44,11 +44,11 @@ export function SupplierModal({
     setInput((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Contacto y Email quedan fuera: se pueden completar después de crear al
+  // proveedor (el esquema de lib/validation.ts también los acepta vacíos).
   const missing: string[] = [];
   if (!input.razon_social.trim()) missing.push("Razón Social");
   if (!input.categorias.length) missing.push("Categoría");
-  if (!input.contacto.trim()) missing.push("Contacto");
-  if (!input.email.trim()) missing.push("Email");
   if (!input.pais.trim()) missing.push("País");
   const canSave = missing.length === 0 && !pending;
 
@@ -207,11 +207,12 @@ export function SupplierModal({
           <div className="form-row three">
             <Field
               label="Contacto"
-              required
+              optional
               value={input.contacto}
               error={errors.contacto}
               onChange={(v) => set("contacto", v)}
               placeholder="Nombre del contacto"
+              help="Puedes completarlo más adelante."
             />
             <Field
               label="Cargo"
@@ -238,11 +239,12 @@ export function SupplierModal({
             />
             <Field
               label="Email"
-              required
+              optional
               value={input.email}
               error={errors.email}
               onChange={(v) => set("email", v)}
               placeholder="ventas@proveedor.cl"
+              help="Puedes completarlo más adelante."
             />
             <Field
               label="CC Email"

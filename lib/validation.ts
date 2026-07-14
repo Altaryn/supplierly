@@ -7,6 +7,14 @@ import { ESTADOS, DOC_ESTADOS } from "@/lib/constants";
 
 const optionalStr = z.string().trim().optional().default("");
 
+// Email opcional: vacío es válido (se completa después de crear al proveedor),
+// pero si trae valor debe tener formato de email. Siempre resuelve a string,
+// nunca a undefined, porque las columnas son `text not null default ''`.
+const optionalEmail = (message: string) =>
+  optionalStr.refine((v) => v === "" || z.string().email().safeParse(v).success, {
+    message,
+  });
+
 export const supplierInputSchema = z.object({
   // Identificación
   razon_social: z.string().trim().min(1, "La razón social es obligatoria"),
@@ -27,22 +35,13 @@ export const supplierInputSchema = z.object({
   codigo_postal: optionalStr,
   telefono_empresa: optionalStr,
   web: optionalStr,
-  // Contacto principal
-  contacto: z.string().trim().min(1, "El contacto es obligatorio"),
+  // Contacto principal (opcional: se puede completar tras crear el proveedor)
+  contacto: optionalStr,
   cargo_contacto: optionalStr,
   genero: optionalStr,
   telefono: optionalStr,
-  email: z
-    .string()
-    .trim()
-    .min(1, "El email es obligatorio")
-    .email("Email inválido"),
-  cc_email: z
-    .string()
-    .trim()
-    .email("CC Email inválido")
-    .optional()
-    .or(z.literal("")),
+  email: optionalEmail("Email inválido"),
+  cc_email: optionalEmail("CC Email inválido"),
   // Comercial / bancario
   condiciones_pago: optionalStr,
   forma_pago: optionalStr,
@@ -57,12 +56,7 @@ export const supplierInputSchema = z.object({
   // Representante legal
   rep_nombre: optionalStr,
   rep_rut: optionalStr,
-  rep_email: z
-    .string()
-    .trim()
-    .email("Email del rep. legal inválido")
-    .optional()
-    .or(z.literal("")),
+  rep_email: optionalEmail("Email del rep. legal inválido"),
   // Estados
   estado: z.enum(ESTADOS as [string, ...string[]]).default("Activo"),
   doc_estado: z.enum(DOC_ESTADOS as [string, ...string[]]).default("Pendiente"),
