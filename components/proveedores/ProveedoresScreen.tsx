@@ -30,15 +30,6 @@ import type { Supplier } from "@/lib/types";
 const byName = (a: Supplier, b: Supplier) =>
   a.razon_social.localeCompare(b.razon_social, "es");
 
-// Clase de color del badge de Empresa: distingue Knauf Chile (azul) de Knauf
-// Aquapanel (verde). "includes" tolera variaciones; cae a la categoría genérica.
-function empresaBadgeClass(empresa: string): string {
-  const n = empresa.toLowerCase();
-  if (n.includes("aquapanel")) return "empresa-aquapanel";
-  if (n.includes("knauf")) return "empresa-chile";
-  return "category";
-}
-
 export function ProveedoresScreen({
   initialSuppliers,
 }: {
@@ -241,8 +232,9 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
       </section>
 
       {/* Tabla (desktop / tablet).
-          RUT / Tax ID y Empresa no se listan aquí a propósito: siguen editables
-          en el drawer del proveedor y siguen siendo buscables desde el campo de
+          RUT / Tax ID y Empresa quedan fuera del listado a propósito (tampoco
+          aparecen en las tarjetas de móvil, más abajo): siguen editables en el
+          drawer del proveedor y siguen siendo buscables desde el campo de
           búsqueda (ver matchesSearch en lib/supplier-form.ts). */}
       <section className="table-wrap">
         <table className="table prov-table">
@@ -374,9 +366,6 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
               <StatusBadge estado={s.estado} />
             </div>
             <div className="rfq-card-meta">
-              {s.empresa ? (
-                <span className={`badge ${empresaBadgeClass(s.empresa)}`}>{s.empresa}</span>
-              ) : null}
               {s.categorias.map((c) => (
                 <span className="badge category" key={c}>
                   {c}
