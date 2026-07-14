@@ -240,14 +240,15 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
         </div>
       </section>
 
-      {/* Tabla (desktop / tablet) */}
+      {/* Tabla (desktop / tablet).
+          RUT / Tax ID y Empresa no se listan aquí a propósito: siguen editables
+          en el drawer del proveedor y siguen siendo buscables desde el campo de
+          búsqueda (ver matchesSearch en lib/supplier-form.ts). */}
       <section className="table-wrap">
         <table className="table prov-table">
           <thead>
             <tr>
               <th>Razón Social</th>
-              <th>Empresa</th>
-              <th>RUT / Tax ID</th>
               <th>Código SAP</th>
               <th>Categoría</th>
               <th>País</th>
@@ -268,24 +269,6 @@ function Inner({ initialSuppliers }: { initialSuppliers: Supplier[] }) {
                       </span>
                     ) : null}
                   </div>
-                </td>
-                <td>
-                  {s.empresa ? (
-                    <span className={`badge ${empresaBadgeClass(s.empresa)}`}>
-                      {s.empresa}
-                    </span>
-                  ) : (
-                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
-                  )}
-                </td>
-                <td>
-                  {s.rut_tax_id ? (
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)" }}>
-                      {s.rut_tax_id}
-                    </span>
-                  ) : (
-                    <span style={{ color: "var(--text-tertiary)" }}>—</span>
-                  )}
                 </td>
                 <td>
                   {s.codigo_sap ? (

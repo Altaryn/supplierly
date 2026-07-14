@@ -2863,8 +2863,8 @@ img, svg { display: block; max-width: 100%; }
 .toolbar-left-filters .search-inline { flex: 1; min-width: 200px; max-width: 360px; }
 .prov-cat-filter { width: auto; min-width: 190px; flex-shrink: 0; }
 
-/* Tabla ancha (8 columnas + acciones tras fusionar Razón Social + Fantasía) */
-.prov-table { min-width: 1040px; }
+/* Tabla ancha (6 columnas + acciones: Razón Social ya incluye la fantasía) */
+.prov-table { min-width: 800px; }
 
 /* Celdas */
 .cell-link {
